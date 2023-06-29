@@ -1,0 +1,17 @@
+blinker==1.6.2
+certifi==2023.5.7
+click==8.1.3
+Flask==2.3.2
+importlib-metadata==6.7.0
+influxdb-client==1.36.1
+itsdangerous==2.1.2
+Jinja2==3.1.2
+MarkupSafe==2.1.3
+psutil==5.9.5
+python-dateutil==2.8.2
+reactivex==4.0.4
+six==1.16.0
+typing_extensions==4.6.3
+urllib3==2.0.3
+Werkzeug==2.3.6
+zipp==3.15.0
