@@ -13,8 +13,18 @@ def defaultpath():
 
 @app.get("/DeviceData")
 def get_deviceData():
-    deviceData = psutilApp.getTelemtryData()
-    return json.dumps(deviceData)
+   deviceData1 = psutilApp.getCPUData()
+   deviceData2 = psutilApp.getMemoryData()
+   deviceData3 = psutilApp.getStorageData()
+   deviceData4 = psutilApp.getNetworkData()
+   
+   merged = dict()
+
+   merged.update(deviceData1)
+   merged.update(deviceData2)
+   merged.update(deviceData3)
+   merged.update(deviceData4)
+   return json.dumps(merged)
 
 """""
 @app.get("/example")
