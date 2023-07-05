@@ -6,12 +6,11 @@ def getTelemtryData():
     memory = psutil.virtual_memory().percent
     storage = psutil.disk_usage('/').percent
     network = psutil.net_io_counters().dropout
-    #print(cpu, memory, storage, network)
 
     dataIns = telemetryData(cpu, memory, storage, network)
     return dataIns
 
-getTelemtryData()
+#ßgetTelemtryData()
 
 
 """""

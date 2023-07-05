@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask
 import psutilApp  
 import json
 
@@ -30,4 +30,4 @@ def get_exampleData():
 if __name__ == '__main__':
    #app.run()
    #app.run(host='0.0.0.0')
-   app.run(host="0.0.0.0", port=portnum, debug=True)
+   app.run(host="0.0.0.0", port=portnum)
