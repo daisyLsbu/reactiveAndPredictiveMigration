@@ -1,5 +1,6 @@
 from flask import Flask
 import psutilApp  
+import psutilThread 
 import json
 
 app = Flask(__name__)
@@ -10,6 +11,11 @@ portnum = 5001
 @app.route('/')
 def defaultpath():
    return welcomeText 
+
+@app.get("/devicedetails")
+def get_deviceDetails():
+   result = psutilThread.startThreads()
+   return result
 
 @app.get("/DeviceData")
 def get_deviceData():

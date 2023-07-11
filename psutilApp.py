@@ -72,6 +72,7 @@ print(getCPUData())
 print(getMemoryData())
 print(getStorageData())
 print(getNetworkData())
+
 """""
     appData1 = telemetryData(1,2,3,4)
     appData1.setCPU(10)
