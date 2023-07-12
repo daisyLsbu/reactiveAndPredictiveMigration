@@ -1,5 +1,4 @@
 import psutil
-from telemetryData import telemetryData
 
 def getCPUData():
     cpu = psutil.cpu_percent(interval=2)
@@ -67,11 +66,89 @@ def getTelemtryData():
     dataIns = telemetryData(cpu, memory, storage, network)
     return dataIns
 
-#ßgetTelemtryData()
-print(getCPUData())
-print(getMemoryData())
-print(getStorageData())
-print(getNetworkData())
+"""""
+#getTelemtryData()
+print(psutil.cpu_percent(interval=2))
+print(psutil.cpu_count())
+#print(psutil.cpu_freq().max)
+#print(psutil.cpu_freq().current)
+
+
+
+print(psutil.virtual_memory().percent)
+print(psutil.virtual_memory().used)
+print(psutil.virtual_memory().free)
+
+
+print(psutil.disk_usage('/').percent)
+print(psutil.disk_usage('/').free)
+
+
+print(psutil.net_io_counters().dropout)
+#print(psutil.net_connections(kind='inet4').__getattribute__)
+#print(psutil.net_if_addrs())
+count = 0
+for name, stats in psutil.net_if_addrs().items():
+    print(count)
+    print(name, stats)
+    count = count +1
+
+count = 0
+for name, stats in psutil.net_connections(kind='inet4').items():
+    print(count)
+    print(name, stats)
+    count = count +1
+
+"""
+nic = psutil.net_if_addrs()
+addrs = nic['lo0']
+
+for addr in addrs:
+    if addr.family._name_.__eq__('AF_INET') != 0:
+        print(" family   : %s" % addr.family._name_)
+        print(" address   : %s" % addr.address)
+        print(getattr(addr, "address"))
+
+
+
+import socket   
+hostname=socket.gethostname()   
+IPAddr=socket.gethostbyname(hostname) 
+
+
+import socket
+ 
+def get_local_ip():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        # doesn't even have to be reachable
+        s.connect(('192.255.255.255', 1))
+        IP = s.getsockname()[0]
+    except:
+        IP = '127.0.0.1'
+    finally:
+        s.close()
+    return IP
+ 
+local_ip = get_local_ip()
+print(local_ip)
+
+import datetime;
+ 
+# ct stores current time
+ct = datetime.datetime.now()
+print("current time:-", ct)
+
+
+
+#for nic, addrs in psutil.net_if_addrs().items():
+    #if nic == 'lo'
+        #print("%s:" % (nic))
+
+
+#getattr(psutil.net_if_addrs(), "snicaddr")
+
+
 
 """""
     appData1 = telemetryData(1,2,3,4)
