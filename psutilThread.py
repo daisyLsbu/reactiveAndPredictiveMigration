@@ -1,85 +1,46 @@
 import threading 
 import psutil
 
-def getCPUData(num, result):
-    cpu = psutil.cpu_percent(interval=2)
-    dataIns = cpuData(cpu)
-    result[num] = dataIns
+resourceData = {}
 
-def getMemoryData(num, result):
-    memory = psutil.virtual_memory().percent
-
-    dataIns = memoryData(memory)
-    result[num] =  dataIns
-
-def getStorageData(num, result):
-    storage = psutil.disk_usage('/').percent
-
-    dataIns = storageData( storage)
-    result[num] =  dataIns
-
-def getNetworkData(num, result):
-    network = psutil.net_io_counters().dropout
-
-    dataIns = networkData(network)
-    result[num] =  dataIns
-
-
-class cpuData(dict):
-
-    def __init__(self, cpu):
-        dict.__init__(self, cpu=cpu)
+class cpuData:
         
-    def get(self):
-        return self.cpu
+    def getCPUData(self):
+        cpu = psutil.cpu_percent(interval=2)
+        global resourceData
+        resourceData['cpu'] = cpu
+
+class memoryData:
+
+    def getMemoryData(self):
+        memory = psutil.virtual_memory().percent
+        global resourceData
+        resourceData['memory'] = memory
     
-class memoryData(dict):
+class storageData:
 
-    def __init__(self, memory):
-        dict.__init__(self, memory=memory)
-        
-    def get(self):
-        return self.memory
+    def getStorageData(self):
+        storage = psutil.disk_usage('/').percent
+        global resourceData
+        resourceData['storage'] = storage
     
-class storageData(dict):
+class networkData:
 
-    def __init__(self, storage):
-        dict.__init__(self, storage=storage)
-        
-    def get(self):
-        return self.storage
-    
-class networkData(dict):
+    def getNetworkData(self):
+        network = psutil.net_io_counters().dropout
+        global resourceData
+        resourceData['network'] = network
 
-    def __init__(self, network):
-        dict.__init__(self, network=network)
-        
-    def get(self):
-        return self.network
-
-"""""
-def getCPUData(num, result):
-    cpu = psutil.cpu_percent(interval=2)
-    result[num] = cpu
-
-def getMemoryData(num, result):
-    memory = psutil.virtual_memory().percent
-    result[num] = memory
-def getStorageData(num, result):
-    storage = psutil.disk_usage('/').percent
-    result[num] = storage
-
-def getNetworkData(num, result):
-    network = psutil.net_io_counters().dropout
-    result[num] = network
-"""
 def startThreads():
-    result = {}
+    cpu = cpuData()
+    mem = memoryData()
+    stg = storageData()
+    nw = networkData()
 
-    t1 = threading.Thread(target = getCPUData, args = ('cpu',result))
-    t2 = threading.Thread(target = getMemoryData, args = ('mem',result))
-    t3 = threading.Thread(target = getStorageData, args = ('storage',result))
-    t4 = threading.Thread(target = getNetworkData, args = ('nw',result))
+    t1 = threading.Thread(target = cpu.getCPUData, args = ())
+    t2 = threading.Thread(target = mem.getMemoryData, args = ())
+    t3 = threading.Thread(target = stg.getStorageData, args = ())
+    t4 = threading.Thread(target = nw.getNetworkData, args = ())
 
     t1.start()
     t2.start()
@@ -91,10 +52,6 @@ def startThreads():
     t3.join()
     t4.join()
 
-    return result
-
-
 if __name__ == '__main__':
-    result = startThreads()
-    print(result)
-    print(result['mem']['memory'])
+    startThreads()
+    print(resourceData)
