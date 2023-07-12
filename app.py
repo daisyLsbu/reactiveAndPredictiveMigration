@@ -1,6 +1,6 @@
 from flask import Flask
 import psutilThread 
-import json
+import sys
 
 app = Flask(__name__)
 
@@ -17,6 +17,5 @@ def get_deviceDetails():
    return result
 
 if __name__ == '__main__':
-   #app.run()
-   #app.run(host='0.0.0.0')
+   port_num = int(sys.argv[1])
    app.run(host="0.0.0.0", port=port_num)

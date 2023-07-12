@@ -63,9 +63,6 @@ def getTelemtryData():
     storage = psutil.disk_usage('/').percent
     network = psutil.net_io_counters().dropout
 
-    dataIns = telemetryData(cpu, memory, storage, network)
-    return dataIns
-
 """""
 #getTelemtryData()
 print(psutil.cpu_percent(interval=2))

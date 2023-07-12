@@ -73,7 +73,6 @@ def get_local_ip_time():
         IP = '127.0.0.1'
     finally:
         s.close()
-
     resourceData['host'] = IP
     resourceData['time'] = datetime.datetime.now().ctime()
  
@@ -101,6 +100,8 @@ def startThreads():
     t4.join()
     t5.join()
 
+    return resourceData
+
 if __name__ == '__main__':
-    startThreads()
-    print(resourceData)
+    
+    print(startThreads())
