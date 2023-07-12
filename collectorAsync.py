@@ -2,6 +2,7 @@ import aiohttp
 import asyncio
 import pandas as pd
 from pprint import PrettyPrinter
+import influxdbsuite
 
 async def fetch(session, url):
     """Requests async requests to fetch util data from Telemetry client
@@ -29,6 +30,7 @@ async def main(interval:int):
 
     pp = PrettyPrinter(indent=2)
     client_endpoints = read_hosts()  # gets list of url to clients
+    bucket="telemetryData"
 
     async with aiohttp.ClientSession() as session:
         while True:
@@ -38,7 +40,10 @@ async def main(interval:int):
             # fetch data
             data = await asyncio.gather(*fetch_coroutines)
             pp.pprint(data)
+
+            influxdbsuite.writeToDB(data, bucket)
             await asyncio.sleep(interval)
+
 
 if __name__ == '__main__':
     asyncio.run(main(interval=1))
