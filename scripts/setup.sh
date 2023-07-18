@@ -14,6 +14,7 @@ git push -u origin main
 setup git ignore for venv
 
 python3 -m venv venv
+conda deactivate
 source venv/bin/activate
 
 python3 -m pip install --upgrade pip
