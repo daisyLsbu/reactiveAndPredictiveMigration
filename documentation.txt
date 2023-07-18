@@ -1,0 +1,32 @@
+
+steps:
+install windows
+install vmware work station 
+download gns3 vm and gns3 gui
+installation of gns3 vm :: 
+extract gns3 vm
+open vmware 
+file-open-sect path-open-add name = gns3 vm-path = gns3vm in document folder--import
+edit vm::
+setting-mem=8gb-pro=1-core=4-vt-x=yes
+*upgrade 
+installation of gns3 ui: 
+start exe-install-next-agree-select=desktop and ui-path=..-nmap-agree-next-wireshark-
+-putty->email-next-finish
+config ui to connect to vm:
+setup wizard- run on virtual box-select path-*localhost and 3080 port-select name created-processor =4-memory=8192-ok
+nw setting in vmware:
+hostonly and nat
+security config: 
+from vmware - vm-ok-security-user=gns3-pass=gns3-ok
+installing PC image in gns3:
+download from gns3-marketplace-appliance
+for ubuntu cloud guest: amd64img -initdata nad actual image
+for ubuntu desktop guest:ubuntu desktop guest 
+file-import appliance-select image-install in gns vm-ok
+for both docker image and the ubuntu cloud
+for topology:
+drag and drop 3 ubuntu cloud, 1 switch and NAT, connect all to switch using ethernet
+start the hosts and open console for each one of them.
+ping to check all are reachable and accessible to each other.
+link for reference
