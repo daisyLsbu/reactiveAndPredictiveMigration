@@ -1,3 +1,58 @@
+influx db installation: and setup 
+cd -Path 'C:\Program Files\InfluxData\influxdb'
+ ./influxd
+collector-password123-telemetry
+
+
+from ext - python
+pip install virtualenv
+
+
+sudo apt install python3
+sudo apt install venv
+sudo apt install < requirement.txt
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+https://luminisindia.com/it-networking-blog/167-learn-how-to-install-gns3-vm-and-link-with-latest-gns3-2-0
 
 steps:
 install windows
@@ -29,4 +84,30 @@ for topology:
 drag and drop 3 ubuntu cloud, 1 switch and NAT, connect all to switch using ethernet
 start the hosts and open console for each one of them.
 ping to check all are reachable and accessible to each other.
-link for reference
+open gns3 as admin
+ubuntu/ubuntu
+ip a
+192.168.200.131,  192.168.200.133,  192.168.200.134 -- 192.168.200.130
+ping 8.8.8.8
+ping all the host and gns3VM from the desktop
+
+setup in each host:::
+run buildset.sh  to get git clone
+make repo public first
+
+*sudo apt install python3.10-venv
+* update both script
+
+run setup.sh script
+
+*pip install -r requirements.txt
+
+run script run.sh
+
+for orchestrator project:
+from cmd line: install git
+winget install --id Git.Git -e --source winget
+make the repo public first
+clone repo : git clone https://github.com/daisyLsbu/orchestrator.git
+cd orchestrator
+
