@@ -1,16 +1,7 @@
-influx db installation: and setup 
-cd -Path 'C:\Program Files\InfluxData\influxdb'
- ./influxd
-collector-password123-telemetry
 
 
-from ext - python
-pip install virtualenv
 
 
-sudo apt install python3
-sudo apt install venv
-sudo apt install < requirement.txt
 
 
 
@@ -110,4 +101,15 @@ winget install --id Git.Git -e --source winget
 make the repo public first
 clone repo : git clone https://github.com/daisyLsbu/orchestrator.git
 cd orchestrator
+for windows:
+from ext - python
+pip install virtualenv
+pip install -r requirement.txt
+cd venv/Scripts
+./activate : if doesnot allow, from powershell allow executionPolicy =all
+pip upgrade
+influx db installation: and setup 
+cd -Path 'C:\Program Files\InfluxData\influxdb'
+ ./influxd
+collector-password123-telemetry
 
