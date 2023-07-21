@@ -103,6 +103,7 @@ clone repo : git clone https://github.com/daisyLsbu/orchestrator.git
 cd orchestrator
 for windows:
 from ext - python
+install pip
 pip install virtualenv
 pip install -r requirement.txt
 cd venv/Scripts
