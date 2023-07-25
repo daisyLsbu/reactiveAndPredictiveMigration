@@ -1,3 +1,3 @@
-buildsetup.sh
 setup.sh
+build.sh
 run.sh
