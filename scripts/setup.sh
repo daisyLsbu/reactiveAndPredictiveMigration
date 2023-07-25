@@ -1,22 +1,6 @@
-# from parent directory
-
+sudo apt update
+sudo apt install git
 git --version
-git config --global user.name daisyLsbu
-git config --global user.email mymail.daisy@gmail.com
-git clone <>
-# git init 
-git pull  
-git add .
-git commit -m 'test commit'
-git pull  
-git push -u origin main
-
-setup git ignore for venv
-
-python3 -m venv venv
-conda deactivate
-source venv/bin/activate
-
-python3 -m pip install --upgrade pip
-
-
+git clone https://github.com/daisyLsbu/orchestrator.git
+cd orchestrator
+git pull 
