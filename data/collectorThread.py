@@ -1,8 +1,8 @@
 import pandas as pd
 import threading
-import influxdb_client, time
-from influxdb_client import Point
-from influxdb_client.client.write_api import SYNCHRONOUS
+#import influxdb_client, time
+#from influxdb_client import Point
+#from influxdb_client.client.write_api import SYNCHRONOUS
 
 def writeToDB(deviceData, ip):
   write_api = client.write_api(write_options=SYNCHRONOUS)
@@ -48,7 +48,7 @@ def allHostsData():
 
 if __name__ == '__main__':
     deviceData = allHostsData()
-    client = connectToDB()
+    #client = connectToDB()
     bucket="telemetryData"
-    writeToDB(deviceData, '10.0.0.0')
+    #writeToDB(deviceData, '10.0.0.0')
 

@@ -1,3 +1,4 @@
 ip,port,api
-127.0.0.1,5002,devicedetails
-10.35.109.150,5002,devicedetails
+192.168.122.210,5001,devicedetails
+192.168.122.80,5002,devicedetails
+192.168.122.77,5001,devicedetails
