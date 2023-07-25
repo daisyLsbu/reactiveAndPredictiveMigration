@@ -1,15 +1,25 @@
 import paramiko
-
-host = '192.168.1.111'
-user = 'user'
-pw = 'password'
+"""
+host = '192.168.122.77'
+user = 'ubuntu'
+pw = 'ubuntu'
 migrationScript = 'python3 migrate.py'
 
 ssh_client = paramiko.SSHClient()
-ssh_client.connect(hostname= host, username= user, password= pw)
+ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+ssh_client.connect(host, user, pw)
 stdin, stdout, stderr = ssh_client.exec_command('ls -l')
 #
 #session = paramiko.ssh_clinet(host_name, user_name, password)
-with session.open() as s:
-    s.cmd(migrationScript)
+#with session.open() as s:
+ #   s.cmd(migrationScript)
+ """
+
+ssh = paramiko.SSHClient()
+ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+ssh.connect("192.168.122.77", 22, 'ubuntu', 'ubuntu')
+ssh.exec_command('ls -l')
+ssh.exec_command('touch testfile.txt')
+
+
 
