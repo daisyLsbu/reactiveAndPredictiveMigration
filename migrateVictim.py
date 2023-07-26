@@ -1,7 +1,7 @@
 import subprocess as sbp
 
 a = 'hello'
-victim_id = '1e176f5e8bab' 
+victim_id = 'ec36f498f445' 
 victim_name = 'ubuntu-test'
 backup_path = '/home/ubuntu/images/'
 backup_img = 'ubuntu-test.img'
