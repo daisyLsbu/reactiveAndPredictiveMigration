@@ -24,9 +24,11 @@ def ssh(host, user, pw, script, id):
 def sshTest():
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect("192.168.122.77", 22, 'ubuntu', 'ubuntu')
+    ssh.connect("192.168.122.210", 22, 'ubuntu', 'ubuntu')
     ssh.exec_command('ls -l')
     ssh.exec_command('touch testfile.txt')
+
+sshTest()
 
 
 

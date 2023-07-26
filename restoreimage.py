@@ -1,15 +1,14 @@
 import subprocess as sbp
 
 a = 'hello'
-image_name = 'test_img:latest'
-image_path = '/Users/daisy/Desktop/test_img.img'
+image_name = 'ubuntu-test:latest'
+image_path = '/home/user/images/ubuntu-test.img'
 
 command = f"""
             echo {a}; 
             docker --version;
             docker images;
             docker ps;
-
             docker load -i {image_path};
             docker images;
             docker run -it {image_name};            

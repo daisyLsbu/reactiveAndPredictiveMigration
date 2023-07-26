@@ -1,10 +1,10 @@
 import subprocess as sbp
 
 a = 'hello'
-victim_id = 'c404f4f952b0' 
-victim_name = 'test_img_4'
-backup_path = 'data/'
-backup_img = 'test_img4.img'
+victim_id = '1e176f5e8bab' 
+victim_name = 'ubuntu-test'
+backup_path = '/home/ubuntu/images/'
+backup_img = 'ubuntu-test.img'
 
 command = f"""
             echo {a}; 
@@ -19,9 +19,12 @@ command = f"""
             docker ps;
             docker stop {victim_id};
             docker ps;
-            pwd
+            docker rm {victim_id};
+            cd {backup_path};
+            ls -lrt;
+            docker rmi {victim_name};
             """
-
+# scp and delete file
 ret = sbp.run(command, capture_output=True, shell=True)
 print(ret.stdout.decode())
 

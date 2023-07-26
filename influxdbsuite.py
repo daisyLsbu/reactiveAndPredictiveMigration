@@ -3,7 +3,10 @@ from influxdb_client import Point, WritePrecision
 from influxdb_client.client.write_api import SYNCHRONOUS
 
 def connectToDB():
-  token = "tKQMaN6mMBXH-gDotw6qvpEOvcZNIMILQWTH1LTKFDddf3e4owp48cG88bFae1L_H3H5Tp8GV0jrDdzBjQiRhQ=="
+  mastertoken = "zTXBuom_LxYD98-9gcyyDw9mHsCrtJUVVUfwsoGBxzQ3DcqwFiamo9ZtPucDfRaWEkOi-yrnqU1WFse9M67Wng=="
+  token = "eFTnKNbRWWdPmLpleqeLLhhMwkQP1FbBY1RaVPnbbDgEudRqrCNuW6Z5aVTyH2sRGMt5NgSF_Lv08PadOEKOuA=="
+
+  #token = "tKQMaN6mMBXH-gDotw6qvpEOvcZNIMILQWTH1LTKFDddf3e4owp48cG88bFae1L_H3H5Tp8GV0jrDdzBjQiRhQ=="
   org = "LSBU"
   url = "http://localhost:8086"
   client = influxdb_client.InfluxDBClient(url=url, token=token, org=org)
@@ -41,10 +44,12 @@ def writeToDB(deviceData, bucket):
     time.sleep(1) # separate points by 1 second
 
 if __name__ == '__main__':
-    deviceData =     [ { 'cpu_count': 8,
+    
+    deviceData =     [ 
+        { 'cpu_count': 8,
     'cpu_utilization': 5.3,
     'host': '10.35.109.150',
-    'network_drop': 0,
+    'network_drop': 3,
     'nw_ip': '127.0.0.1',
     'storage_free': 35627315200,
     'storage_percent': 19.9,
@@ -64,7 +69,7 @@ if __name__ == '__main__':
     'vm_percent': 83.9,
     'vm_used': 3310534656}]
 
-    bucket="telemetryData"
+    bucket="telemetry"
 
     writeToDB(deviceData, bucket)
  
