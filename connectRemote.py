@@ -28,7 +28,24 @@ def sshTest():
     ssh.exec_command('ls -l')
     ssh.exec_command('touch testfile.txt')
 
-sshTest()
+def sshmigrate():
+    """_summary_
+    """
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh.connect("192.168.122.210", 22, 'ubuntu', 'ubuntu')
+    ssh.exec_command('python3 migrateVictim.py')
+
+def sshrestore():
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh.connect("192.168.122.80", 22, 'ubuntu', 'ubuntu')
+    ssh.exec_command('python3 restoreimage.py')
+
+#sshTest()
+#docker run -d 5a81c4b8502e
+#sshmigrate() 
+sshrestore()
 
 
 

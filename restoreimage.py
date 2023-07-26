@@ -2,19 +2,19 @@ import subprocess as sbp
 
 a = 'hello'
 image_name = 'ubuntu-test:latest'
-image_path = '/home/user/images/ubuntu-test.img'
+image_path = '/home/ubuntu/images/ubuntu-test.img'
 
 command = f"""
             echo {a}; 
-            docker --version;
-            docker images;
-            docker ps;
-            docker load -i {image_path};
-            docker images;
-            docker run -it {image_name};            
-            docker images;
-            docker ps -a;
-            docker ps;
+            sudo docker --version;
+            sudo docker images;
+            sudo docker ps;
+            sudo docker load -i {image_path};
+            sudo docker images;
+            sudo docker run -d {image_name};            
+            sudo docker images;
+            sudo docker ps -a;
+            sudo docker ps;
             pwd
             """
 
