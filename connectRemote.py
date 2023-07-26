@@ -14,12 +14,19 @@ stdin, stdout, stderr = ssh_client.exec_command('ls -l')
 #with session.open() as s:
  #   s.cmd(migrationScript)
  """
+def ssh(host, user, pw, script, id):
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh.connect(host, 22, user, pw)
+    ssh.exec_command('ls -l')
+    ssh.exec_command(f'python3 {script} {id}')
 
-ssh = paramiko.SSHClient()
-ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-ssh.connect("192.168.122.77", 22, 'ubuntu', 'ubuntu')
-ssh.exec_command('ls -l')
-ssh.exec_command('touch testfile.txt')
+def sshTest():
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh.connect("192.168.122.77", 22, 'ubuntu', 'ubuntu')
+    ssh.exec_command('ls -l')
+    ssh.exec_command('touch testfile.txt')
 
 
 
