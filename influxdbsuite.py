@@ -1,8 +1,20 @@
-import influxdb_client, time
-from influxdb_client import Point, WritePrecision
+import influxdb_client, os, time
+from influxdb_client import InfluxDBClient, Point, WritePrecision
 from influxdb_client.client.write_api import SYNCHRONOUS
+import json
+
+def connectToDB_new():
+  #token = os.environ.get("INFLUXDB_TOKEN")
+  token = 'UnZq8-3qAHW4bk5BNjZgPJLBeeNkOXWatintbu4RAZe_96fdRbPHofP_sE6JWNEPrTnGyFUg26ofUifZQx19DA=='
+  org = "LSBU"
+  url = "http://localhost:8086"
+
+  client = influxdb_client.InfluxDBClient(url=url, token=token, org=org)
+  print(token)
+  return client
 
 def connectToDB():
+  #user/password123../master: export INFLUXDB_TOKEN=UnZq8-3qAHW4bk5BNjZgPJLBeeNkOXWatintbu4RAZe_96fdRbPHofP_sE6JWNEPrTnGyFUg26ofUifZQx19DA==/
   mastertoken = "zTXBuom_LxYD98-9gcyyDw9mHsCrtJUVVUfwsoGBxzQ3DcqwFiamo9ZtPucDfRaWEkOi-yrnqU1WFse9M67Wng=="
   token = "eFTnKNbRWWdPmLpleqeLLhhMwkQP1FbBY1RaVPnbbDgEudRqrCNuW6Z5aVTyH2sRGMt5NgSF_Lv08PadOEKOuA=="
 
@@ -13,40 +25,40 @@ def connectToDB():
   return client
 
 def writeToDB(deviceData, bucket):
-    client = connectToDB()
+    client = connectToDB_new()
     write_api = client.write_api(write_options=SYNCHRONOUS)
 
     for k in deviceData:   
-        print("test5")
+        print("test3")
         print("host", k['host'])
         print("cpu_count", k['cpu_count'])
-        print("nw_ip", k['nw_ip'])
+        #print("nw_ip", k['nw_ip'])
         print("storage_free", k['storage_free'])
         print("vm_percent", k['vm_percent'])
         print("time", k['time'])
 
     for k in deviceData:
-        point = (
-        Point("test5")
-         .tag("host", k['host'])
-         .time(k['time'], WritePrecision.NS)
-        .field("cpu_count", k['cpu_count'])
-        .field("cpu_utilization", k['cpu_utilization'])
-        .field("network_drop", k['network_drop'])
-        .field("nw_ip", k['nw_ip'])
-        .field("storage_free", k['storage_free'])
-        .field("storage_percent", k['storage_percent'])
-        .field("vm_free", k['vm_free'])
-        .field("vm_percent", k['vm_percent'])
-        .field("vm_used", k['vm_used'])
-        )
-    write_api.write(bucket=bucket, org="LSBU", record=point)
-    time.sleep(1) # separate points by 1 second
+      point = (
+        Point("test3")
+          .tag("host", k['host'])
+          #.time(k['time'], WritePrecision.NS)
+          .field("cpu_count", k['cpu_count'])
+          .field("cpu_utilization", k['cpu_utilization'])
+          #.field("network_drop", k['network_drop'])
+          #.field("nw_ip", k['nw_ip'])
+          .field("storage_free", k['storage_free'])
+          .field("storage_percent", k['storage_percent'])
+          .field("vm_free", k['vm_free'])
+          .field("vm_percent", k['vm_percent'])
+          .field("vm_used", k['vm_used'])
+    )
+      write_api.write(bucket=bucket, org="LSBU", record=point)
+      #time.sleep(1) # separate points by 1 second
 
 if __name__ == '__main__':
     
-    deviceData =     [ 
-        { 'cpu_count': 8,
+    deviceData = [ 
+    { 'cpu_count': 8,
     'cpu_utilization': 5.3,
     'host': '10.35.109.150',
     'network_drop': 3,
@@ -57,6 +69,8 @@ if __name__ == '__main__':
     'vm_free': 40894464,
     'vm_percent': 83.9,
     'vm_used': 3310534656},
+
+
   { 'cpu_count': 8,
     'cpu_utilization': 5.3,
     'host': '10.35.109.150',
@@ -69,7 +83,6 @@ if __name__ == '__main__':
     'vm_percent': 83.9,
     'vm_used': 3310534656}]
 
-    bucket="telemetry"
+    bucket="telemetrydata"
 
     writeToDB(deviceData, bucket)
- 
