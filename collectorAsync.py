@@ -26,11 +26,11 @@ def read_hosts():
     return client_endpoint
 
 
-async def main(interval:int):
+async def storeData(interval:int):
 
     pp = PrettyPrinter(indent=2)
     client_endpoints = read_hosts()  # gets list of url to clients
-    bucket="telemetryData"
+    bucket="telemetrydata"
 
     async with aiohttp.ClientSession() as session:
         while True:
@@ -46,4 +46,4 @@ async def main(interval:int):
 
 
 if __name__ == '__main__':
-    asyncio.run(main(interval=1))
+    asyncio.run(storeData(interval=1))
