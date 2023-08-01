@@ -1,7 +1,7 @@
 import nodeSelection
 import hostSelection
 import connectRemote
-
+"""
 def migrate():
     victim = nodeSelection.getvictim()
     host = hostSelection.gethost()
@@ -10,5 +10,8 @@ def migrate():
 
     #if success
     connectRemote.ssh(host.ip, host.user, host.pw, 'restoreimage.py', victim.id)
+"""
+
+
 
 

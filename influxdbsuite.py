@@ -2,6 +2,7 @@ import influxdb_client, os, time
 from influxdb_client import InfluxDBClient, Point, WritePrecision
 from influxdb_client.client.write_api import SYNCHRONOUS
 import json
+import dict
 
 def connectToDB_new():
   #token = os.environ.get("INFLUXDB_TOKEN")
@@ -16,16 +17,17 @@ def connectToDB_new():
 def connectToDB():
   #user/password123../master: export INFLUXDB_TOKEN=UnZq8-3qAHW4bk5BNjZgPJLBeeNkOXWatintbu4RAZe_96fdRbPHofP_sE6JWNEPrTnGyFUg26ofUifZQx19DA==/
   mastertoken = "zTXBuom_LxYD98-9gcyyDw9mHsCrtJUVVUfwsoGBxzQ3DcqwFiamo9ZtPucDfRaWEkOi-yrnqU1WFse9M67Wng=="
-  token = "eFTnKNbRWWdPmLpleqeLLhhMwkQP1FbBY1RaVPnbbDgEudRqrCNuW6Z5aVTyH2sRGMt5NgSF_Lv08PadOEKOuA=="
+  #token = "eFTnKNbRWWdPmLpleqeLLhhMwkQP1FbBY1RaVPnbbDgEudRqrCNuW6Z5aVTyH2sRGMt5NgSF_Lv08PadOEKOuA=="
 
-  #token = "tKQMaN6mMBXH-gDotw6qvpEOvcZNIMILQWTH1LTKFDddf3e4owp48cG88bFae1L_H3H5Tp8GV0jrDdzBjQiRhQ=="
+  #local mac
+  token = "tKQMaN6mMBXH-gDotw6qvpEOvcZNIMILQWTH1LTKFDddf3e4owp48cG88bFae1L_H3H5Tp8GV0jrDdzBjQiRhQ=="
   org = "LSBU"
   url = "http://localhost:8086"
   client = influxdb_client.InfluxDBClient(url=url, token=token, org=org)
   return client
 
 def writeToDB(deviceData, bucket):
-    client = connectToDB_new()
+    client = connectToDB()
     write_api = client.write_api(write_options=SYNCHRONOUS)
 
     for k in deviceData:   
@@ -53,8 +55,50 @@ def writeToDB(deviceData, bucket):
           .field("vm_used", k['vm_used'])
     )
       write_api.write(bucket=bucket, org="LSBU", record=point)
-      #time.sleep(1) # separate points by 1 second
 
+def readFromDB():
+  client = connectToDB()
+  res = {}
+  # To create a empty set you have to use the built in method:
+  victim_set = set()
+  host_set = set()
+  #querying data from db
+  query_api = client.query_api()  
+  query = """
+    from(bucket: "telemetryData")
+		|> range(start: -300m)
+	  |> filter(fn: (r) => r["_measurement"] == "test3")
+	  |> filter(fn: (r) => r["_field"] == "cpu_count" or r["_field"] == "cpu_utilization" or r["_field"] == "network_drop")
+	  |> filter(fn: (r) => r["host"] == "10.35.109.150")
+	  |> timedMovingAverage(every: 5m, period: 10m)
+    """
+
+
+  tables = query_api.query(query, org="LSBU")
+  results = []
+  for table in tables:
+      for record in table.records:
+        results.append((record.get_value(), record.get_field(), record.values.get('host')))
+        print(record)
+        res[record['_field']] = record['_value']
+        res['host'] = record['host']
+        #convert to scalar value
+        #compare with thresold
+        #if above thresold - > #delete from host list, add into victim list 
+        #host_set.remove(res['host'])
+        #victim_set.add(res['host'])
+
+  
+
+  #print(res)
+  print(results)
+  
+
+  #if victimlist is not empty - search destination host - > trigger migration
+  if not victim_set:
+     pass
+    
+              
 if __name__ == '__main__':
     
     deviceData = [ 
@@ -83,6 +127,7 @@ if __name__ == '__main__':
     'vm_percent': 83.9,
     'vm_used': 3310534656}]
 
-    bucket="telemetrydata"
+    bucket="telemetryData"
 
-    writeToDB(deviceData, bucket)
+    #writeToDB(deviceData, bucket)
+    readFromDB()
