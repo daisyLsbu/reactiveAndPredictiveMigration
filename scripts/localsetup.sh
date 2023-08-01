@@ -19,4 +19,12 @@ source venv/bin/activate
 
 python3 -m pip install --upgrade pip
 
-
+# for checking in different branch
+source venv/bin/activate
+conda deactivate 
+git remote add master https://github.com/daisyLsbu/MigrationOrchestrator.git
+git checkout -b orchestrator
+git add . 
+git commit -m "fist" 
+git init  
+git push -u master telemetry
