@@ -27,4 +27,4 @@ git checkout -b orchestrator
 git add . 
 git commit -m "fist" 
 git init  
-git push -u master telemetry
+git push -u master orchestrator
