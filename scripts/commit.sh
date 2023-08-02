@@ -1,3 +1,4 @@
+pip freeze > requirement.txt
 git pull origin telemetry
 git add .
 git commit -m $1
