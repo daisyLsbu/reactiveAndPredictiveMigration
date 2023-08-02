@@ -30,6 +30,9 @@ git pull origin main
 git add . 
 git commit -m "fist" 
 git pull origin main 
-git push -u origin main
---
 git push -u master orchestrator
+--
+
+git push -u origin main
+git remote rm destination
+git branch --set-upstream-to=origin/main orchestrator
