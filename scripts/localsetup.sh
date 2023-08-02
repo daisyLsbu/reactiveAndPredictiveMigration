@@ -19,12 +19,17 @@ source venv/bin/activate
 
 python3 -m pip install --upgrade pip
 
-# for checking in different branch
+# for checking in different repo and new branch
 source venv/bin/activate
 conda deactivate 
 git remote add master https://github.com/daisyLsbu/MigrationOrchestrator.git
 git checkout -b orchestrator
+
+git remote -v 
+git pull origin main
 git add . 
 git commit -m "fist" 
-git init  
+git pull origin main 
+git push -u origin main
+
 git push -u master orchestrator
