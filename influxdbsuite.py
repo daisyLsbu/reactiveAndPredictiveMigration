@@ -2,19 +2,16 @@ import influxdb_client, os, time
 from influxdb_client import InfluxDBClient, Point, WritePrecision
 from influxdb_client.client.write_api import SYNCHRONOUS
 import json
-import dict
 
-def connectToDB_new():
-  #token = os.environ.get("INFLUXDB_TOKEN")
+def connectToDB():
   token = 'UnZq8-3qAHW4bk5BNjZgPJLBeeNkOXWatintbu4RAZe_96fdRbPHofP_sE6JWNEPrTnGyFUg26ofUifZQx19DA=='
   org = "LSBU"
   url = "http://localhost:8086"
 
   client = influxdb_client.InfluxDBClient(url=url, token=token, org=org)
-  print(token)
   return client
 
-def connectToDB():
+def connectToDB_mac():
   #user/password123../master: export INFLUXDB_TOKEN=UnZq8-3qAHW4bk5BNjZgPJLBeeNkOXWatintbu4RAZe_96fdRbPHofP_sE6JWNEPrTnGyFUg26ofUifZQx19DA==/
   mastertoken = "zTXBuom_LxYD98-9gcyyDw9mHsCrtJUVVUfwsoGBxzQ3DcqwFiamo9ZtPucDfRaWEkOi-yrnqU1WFse9M67Wng=="
   #token = "eFTnKNbRWWdPmLpleqeLLhhMwkQP1FbBY1RaVPnbbDgEudRqrCNuW6Z5aVTyH2sRGMt5NgSF_Lv08PadOEKOuA=="
@@ -31,7 +28,7 @@ def writeToDB(deviceData, bucket):
     write_api = client.write_api(write_options=SYNCHRONOUS)
 
     for k in deviceData:   
-        print("test3")
+        print("test5")
         print("host", k['host'])
         print("cpu_count", k['cpu_count'])
         #print("nw_ip", k['nw_ip'])
@@ -41,9 +38,10 @@ def writeToDB(deviceData, bucket):
 
     for k in deviceData:
       point = (
-        Point("test3")
-          .tag("host", k['host'])
+        Point("test5")
+          #.tag("host", k['host'])    # added 
           #.time(k['time'], WritePrecision.NS)
+          .field("host", k['host'])
           .field("cpu_count", k['cpu_count'])
           .field("cpu_utilization", k['cpu_utilization'])
           #.field("network_drop", k['network_drop'])
@@ -56,7 +54,7 @@ def writeToDB(deviceData, bucket):
     )
       write_api.write(bucket=bucket, org="LSBU", record=point)
 
-def readFromDB():
+def readFromDB(bucket):
   client = connectToDB()
   res = {}
   # To create a empty set you have to use the built in method:
@@ -65,11 +63,10 @@ def readFromDB():
   #querying data from db
   query_api = client.query_api()  
   query = """
-    from(bucket: "telemetryData")
+    from(bucket: "telemetrydata")
 		|> range(start: -300m)
 	  |> filter(fn: (r) => r["_measurement"] == "test3")
 	  |> filter(fn: (r) => r["_field"] == "cpu_count" or r["_field"] == "cpu_utilization" or r["_field"] == "network_drop")
-	  |> filter(fn: (r) => r["host"] == "10.35.109.150")
 	  |> timedMovingAverage(every: 5m, period: 10m)
     """
 
@@ -127,7 +124,7 @@ if __name__ == '__main__':
     'vm_percent': 83.9,
     'vm_used': 3310534656}]
 
-    bucket="telemetryData"
+    bucket_mac="telemetryData"
 
     #writeToDB(deviceData, bucket)
-    readFromDB()
+    readFromDB(bucket_mac)
