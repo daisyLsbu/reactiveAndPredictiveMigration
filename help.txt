@@ -1,0 +1,26 @@
+##### git commands ######
+
+checkout:  git clone -b <branch> <remote_repo>
+main branch : 
+git clone https://github.com/daisyLsbu/MigrationOrchesTelemtry.git
+telemetry branch:
+git clone -b telemetry https://github.com/daisyLsbu/MigrationOrchesTelemtry.git
+monitor branch:
+git clone -b monitor https://github.com/daisyLsbu/MigrationOrchesTelemtry.git
+
+operation on remote: git remote options
+info: git remote -v 
+add: git remote add <name> <remote_repo> : git remote add origin https://github.com/daisyLsbu/MigrationOrchesTelemtry.git
+remove: git remote rm <name> : git remote rm origin
+creating branch: git checkout -b <branchname>: git checkout -b monitor
+
+commit:
+git add .
+git commit -m "<comment>" : git commit -m "fist" 
+
+checkin:
+commit -> push
+main: git push -u <remote> <main>: git push -u origin main
+branch: git push -u <remote> <branch>: git push -u origin monitor
+
+pull:
