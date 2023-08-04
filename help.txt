@@ -1,6 +1,6 @@
 ##### git commands ######
 
-checkout:  git clone -b <branch> <remote_repo>
+clone:  git clone -b <branch> <remote_repo>
 main branch : 
 git clone https://github.com/daisyLsbu/MigrationOrchesTelemtry.git
 telemetry branch:
@@ -21,6 +21,27 @@ git commit -m "<comment>" : git commit -m "fist"
 checkin:
 commit -> push
 main: git push -u <remote> <main>: git push -u origin main
-branch: git push -u <remote> <branch>: git push -u origin monitor
+branch: git push -u <remote> <branch>: git push -u origin monitor/telemetry
 
 pull:
+main: git pull
+branch: git pull origin monitor/telemetry/main
+
+setup:
+git --version
+git config --global user.name daisyLsbu
+git config --global user.email mymail.daisy@gmail.com
+git init 
+setup git_ignore for venv, data
+
+###### vscode #######
+open from terminal: 
+alias code="open -a /Applications/Visual\ Studio\ Code.app"
+code .
+
+indent on mac : cmd + [ , to remove cmd + ]
+
+###### docker commands #######
+
+docker API commands:
+client.containers.run('alpine', 'echo hello world')
