@@ -38,8 +38,8 @@ def writeToDB(deviceData, bucket):
 
     for k in deviceData:
       point = (
-        Point("test5")
-          #.tag("host", k['host'])    # added 
+        Point("test7")
+          .tag("host", k['host'])    # added 
           #.time(k['time'], WritePrecision.NS)
           .field("host", k['host'])
           .field("cpu_count", k['cpu_count'])
@@ -51,8 +51,10 @@ def writeToDB(deviceData, bucket):
           .field("vm_free", k['vm_free'])
           .field("vm_percent", k['vm_percent'])
           .field("vm_used", k['vm_used'])
-    )
+        )
       write_api.write(bucket=bucket, org="LSBU", record=point)
+
+
 
 def readFromDB(bucket):
   client = connectToDB()
@@ -85,23 +87,54 @@ def readFromDB(bucket):
         #host_set.remove(res['host'])
         #victim_set.add(res['host'])
 
-  
-
   #print(res)
   print(results)
   
-
   #if victimlist is not empty - search destination host - > trigger migration
   if not victim_set:
      pass
     
-              
+def writeToDBAll(deviceData2, bucket):
+    client = connectToDB_mac()
+    write_api = client.write_api(write_options=SYNCHRONOUS)
+
+    for k in deviceData2:
+      point1 = (
+        Point("test7")
+          .tag("host", k['host'])    # added 
+          #.time(k['time'], WritePrecision.NS)
+          .field("host", k['host'])
+          .field("cpu_count", k['cpu_count'])
+          .field("cpu_utilization", k['cpu_utilization'])
+          #.field("network_drop", k['network_drop'])
+          #.field("nw_ip", k['nw_ip'])
+          .field("storage_free", k['storage_free'])
+          .field("storage_percent", k['storage_percent'])
+          .field("vm_free", k['vm_free'])
+          .field("vm_percent", k['vm_percent'])
+          .field("vm_used", k['vm_used'])
+        )
+      if 'ctr' in k:
+        for entry in k['ctr']:
+          point2 = (
+            Point("test8")
+            .tag("host", k['host'])    # added 
+            .tag("container", entry['id'])    # added 
+            .field("cpu_count", entry['ctr_cpu'])
+            .field("storage_free", entry['ctr_str'])
+            .field("vm_free", entry['ctr_vm'])
+          )
+          write_api.write(bucket=bucket, org="LSBU", record=point2)
+
+      write_api.write(bucket=bucket, org="LSBU", record=point1)
+
+
 if __name__ == '__main__':
-    
-    deviceData = [ 
+
+  deviceData = [ 
     { 'cpu_count': 8,
     'cpu_utilization': 5.3,
-    'host': '10.35.109.150',
+    'host': '10.35.109.155',
     'network_drop': 3,
     'nw_ip': '127.0.0.1',
     'storage_free': 35627315200,
@@ -111,10 +144,9 @@ if __name__ == '__main__':
     'vm_percent': 83.9,
     'vm_used': 3310534656},
 
-
   { 'cpu_count': 8,
     'cpu_utilization': 5.3,
-    'host': '10.35.109.150',
+    'host': '10.35.109.155',
     'network_drop': 0,
     'nw_ip': '127.0.0.1',
     'storage_free': 35627315200,
@@ -123,8 +155,53 @@ if __name__ == '__main__':
     'vm_free': 40894464,
     'vm_percent': 83.9,
     'vm_used': 3310534656}]
+        
+  deviceData2 = [ 
+    { 'cpu_count': 8,
+    'cpu_utilization': 5.3,
+    'host': '10.35.109.165',
+    'network_drop': 3,
+    'nw_ip': '127.0.0.1',
+    'storage_free': 35627315200,
+    'storage_percent': 19.9,
+    'time': 'Wed Jul 12 20:22:53 2023',
+    'vm_free': 40894464,
+    'vm_percent': 83.9,
+    'vm_used': 3310534656,
+    'ctr':[{'id': 49,
+    'ctr_cpu': 83.9,
+    'ctr_str': 83.9,
+    'ctr_vm': 3310534656}]},
 
-    bucket_mac="telemetryData"
 
-    #writeToDB(deviceData, bucket)
-    readFromDB(bucket_mac)
+  { 'cpu_count': 8,
+    'cpu_utilization': 5.3,
+    'host': '10.35.109.155',
+    'network_drop': 0,
+    'nw_ip': '127.0.0.1',
+    'storage_free': 35627315200,
+    'storage_percent': 19.9,
+    'time': 'Wed Jul 12 20:22:53 2023',
+    'vm_free': 40894464,
+    'vm_percent': 83.9,
+    'vm_used': 3310534656,
+    'ctr':[{'id': 40,
+    'ctr_cpu': 83.9,
+    'ctr_str': 83.9,
+    'ctr_vm': 3310534656}, 
+    {'id': 41,
+    'ctr_cpu': 83.9,
+    'ctr_str': 83.9,
+    'ctr_vm': 3310534656}, 
+    {'id': 42,
+    'ctr_cpu': 83.9,
+    'ctr_str': 83.9,
+    'ctr_vm': 3310534656}]}]
+
+  bucket_mac="telemetryData"
+
+  writeToDBAll(deviceData2, bucket_mac)
+  #writeToDB(deviceData, bucket_mac)
+  #readFromDB(bucket_mac)
+
+
