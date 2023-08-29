@@ -3,7 +3,6 @@ import pandas as pd
 import aiohttp
 import asyncio
 from pprint import PrettyPrinter
-from tabulate import tabulate
 
 async def fetch(session, url):
     """Requests async requests to fetch util data from Telemetry client
@@ -49,11 +48,27 @@ async def displayData(interval:int):
 
             await asyncio.sleep(interval)
 
-if __name__ == '__main__':
+async def getCurrentData():
 
+    pp = PrettyPrinter(indent=2)
+    client_endpoints = read_hosts()  # gets list of url to clients
+
+    async with aiohttp.ClientSession() as session:
+        #create a collection of coroutines
+        fetch_coroutines = [fetch(session=session, url=url) for url in client_endpoints]
+
+            # fetch data
+        currentdata = await asyncio.gather(*fetch_coroutines)
+        pp.pprint(currentdata)
+        return currentdata
+
+if __name__ == '__main__':
     print("Hello")
 
     hosts = read_hosts()
     print(hosts)
 
     asyncio.run(displayData(interval=1))
+    #asyncio.run(getCurrentData())
+
+

@@ -3,27 +3,41 @@ from influxdb_client import InfluxDBClient, Point, WritePrecision
 from influxdb_client.client.write_api import SYNCHRONOUS
 from pprint import PrettyPrinter
 
+'''
+This module reads the moving average value of all the host from influx db
+compares with the threshold and if above threshold, adds the host to victim_set 
+for each host in victim_set: gets flagged container from json and rtt values wrt all other host
+for all host in host_set: gets available resources
+for each flagged containers, get required resources, compares with available resources of host_set
+if matched, available resource of host_set is reduced and migration is triggered.
+
+data: victim_set, dest_set, dest_rtt, dest_resource, cntr_resource
+
+'''
+
 pp = PrettyPrinter(indent=2)
- victim_set = set()
-  host_set = set()
-  dbdata= {}
-  thresold = 20
+victim_set = set()
+dest_set = set()
+dest_rtt = {}
+dest_resource = {} 
+cntr_resource = {}
+
+dbdata= {}
+thresold = 20
 
 def connectToDB():
   #token = 'UnZq8-3qAHW4bk5BNjZgPJLBeeNkOXWatintbu4RAZe_96fdRbPHofP_sE6JWNEPrTnGyFUg26ofUifZQx19DA=='
   mac_token = "tKQMaN6mMBXH-gDotw6qvpEOvcZNIMILQWTH1LTKFDddf3e4owp48cG88bFae1L_H3H5Tp8GV0jrDdzBjQiRhQ=="
   org = "LSBU"
   url = "http://localhost:8086"
-
   client = influxdb_client.InfluxDBClient(url=url, token=mac_token, org=org)
   return client
 
 def readFromDB(client, bucket):
   
-
-  # To create a empty set you have to use the built in method:
+  # To create a empty set, the built in method is used:
   victim_set = set()
-  host_set = set()
+  dest_set = set()
   dbdata= {}
   thresold = 20
 
@@ -42,10 +56,8 @@ def readFromDB(client, bucket):
 
   for table in tables:
       for record in table.records:
-        #print(record)
-        #print(record['_field'], record['_value'])  
 
-        host_set.add(record['host'])
+        dest_set.add(record['host'])
        
         if record['host'] in dbdata:
           dbdata[record['host']].update({record['_field'] : record['_value']})        
@@ -53,20 +65,21 @@ def readFromDB(client, bucket):
            dbdata[record['host']] = {record['_field'] : record['_value']} 
            
   print(dbdata) 
-  print(host_set)   
-  #convert to scalar value
-  for host in host_set:
-     cumulativeValue = dbdata[host]['cpu_utilization'] + dbdata[host]['storage_free'] + dbdata[host]['storage_free']
-     print(cumulativeValue)
-      #compare with thresold
-     if cumulativeValue > thresold:
-        #if above thresold - > #delete from host list, add into victim list 
-        victim_set.add(host)  
-        print(victim_set)
+  print(dest_set)   
 
-#remove victim from host set
-  #host_set.remove(victim_set)
-        #print(host_set)   
+  #convert to scalar value
+  for host in dest_set:
+    cumulativeValue = dbdata[host]['cpu_utilization'] + dbdata[host]['storage_free'] + dbdata[host]['storage_free']
+    print(cumulativeValue)
+
+    #compare with thresold
+    if cumulativeValue > thresold:
+      #if above thresold - > #delete from dest_set, add into victim list 
+      victim_set.add(host)  
+      print(victim_set)
+      #remove victim from host set
+      #host_set.remove(victim_set)
+      #print(host_set)   
   
   #if victimlist is not empty - search victim container and destination host - > trigger migration
   if not victim_set:
@@ -74,25 +87,12 @@ def readFromDB(client, bucket):
   #else:
      #updateVictimContainers()
      #selecthostandtriggerMigration()
-
-def updateVictimHost():
-     #convert to scalar value
-  for host in host_set:
-     cumulativeValue = dbdata[host]['cpu_utilization'] + dbdata[host]['storage_free'] + dbdata[host]['storage_free']
-     print(cumulativeValue)
-      #compare with thresold
-     if cumulativeValue > thresold:
-        #if above thresold - > #delete from host list, add into victim list 
-        victim_set.add(host)  
-        print(victim_set)
               
 if __name__ == '__main__':
     
     bucket="telemetrydata"
     client = connectToDB()
     readFromDB(client, bucket)
-    updateVictimHost()
-
 
 """
 import nodeSelection
