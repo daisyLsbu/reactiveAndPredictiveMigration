@@ -4,6 +4,7 @@ from influxdb_client.client.write_api import SYNCHRONOUS
 from pprint import PrettyPrinter
 from collectDisplay import getCurrentData
 import asyncio
+import connectRemote
 
 '''
 This module reads the moving average value of all the host from influx db
@@ -127,12 +128,15 @@ def selectBestRTTValue(list, srcIP):
         dest_IP = [key for key, value in filtered_rtt.items() if value == lowest_rtt][0]
     return dest_IP
 
-def createSourceImage(srcIP, cntrId):
-    pass
+
 def copyToDestination(destIP):
     pass
+
+def createSourceImage(srcIP, cntrId):
+    connectRemote.sshmigrate(srcIP, cntrId)
+
 def restoreInDestination(destIP):
-    pass
+    connectRemote.sshrestore(destIP)
 
 def migrateVictimCntr():
     cntrId = ''
@@ -148,9 +152,14 @@ def migrateVictimCntr():
             if(demand['cpu'] > avail['cpu']):
                 IPlist.append(key)
         destIP = selectBestRTTValue(IPlist, srcIP)
-        createSourceImage(srcIP, cntrId)
-        copyToDestination(destIP)
-        restoreInDestination(destIP)
+    print("reached")
+    #move in for loop
+    cntrId = 'a727f282067a'
+    srcIP = "192.168.122.210"
+    destIP = "192.168.122.210"
+    createSourceImage(srcIP, cntrId)
+    #copyToDestination(destIP)
+    restoreInDestination(destIP)
 
 def startmonitoring():
   client = connectToDB()
