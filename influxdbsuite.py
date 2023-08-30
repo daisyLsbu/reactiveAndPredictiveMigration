@@ -28,7 +28,7 @@ def writeToDB(deviceData, bucket):
     write_api = client.write_api(write_options=SYNCHRONOUS)
 
     for k in deviceData:   
-        print("test5")
+        print("test7")
         print("host", k['host'])
         print("cpu_count", k['cpu_count'])
         #print("nw_ip", k['nw_ip'])

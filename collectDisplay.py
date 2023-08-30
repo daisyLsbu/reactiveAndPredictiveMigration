@@ -50,7 +50,7 @@ async def displayData(interval:int):
 
 async def getCurrentData():
 
-    pp = PrettyPrinter(indent=2)
+    #pp = PrettyPrinter(indent=2)
     client_endpoints = read_hosts()  # gets list of url to clients
 
     async with aiohttp.ClientSession() as session:
@@ -59,7 +59,7 @@ async def getCurrentData():
 
             # fetch data
         currentdata = await asyncio.gather(*fetch_coroutines)
-        pp.pprint(currentdata)
+        #pp.pprint(currentdata)
         return currentdata
 
 if __name__ == '__main__':
