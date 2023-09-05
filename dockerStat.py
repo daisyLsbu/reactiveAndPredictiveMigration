@@ -1,28 +1,34 @@
 import docker
-from pprint import PrettyPrinter
 
 def dockerstatinfo():
-    pp = PrettyPrinter(indent=2)
     client = docker.from_env()
     result = []
-    result_out = {}
 
     for containers in client.containers.list():
+        data = containers.stats(decode=None, stream = False)
+
+        #get customised values
         containerid = containers.short_id
-        stats = containers.stats(decode=None, stream = False)
-        UsageDelta = stats['cpu_stats']['cpu_usage']['total_usage'] - stats['precpu_stats']['cpu_usage']['total_usage']
 
+        # Extract CPU, memory and network utilization values
+        cpu_usage = data["cpu_stats"]["cpu_usage"]["total_usage"]
+        memory_usage = data["memory_stats"]["usage"]       
+        nw_usage = data["networks"]["eth0"]["rx_bytes"] + data["networks"]["eth0"]["tx_bytes"]
 
-        # from informations : UsageDelta = 25382985593 - 25382168431
-        '''
-        pp.pprint(containerid)
-        pp.pprint(stats)
-        pp.pprint(UsageDelta)
-        '''
+        # Calculate utilization percentage
+        cpu_utilization = (cpu_usage / data["cpu_stats"]["system_cpu_usage"]) * 100
+        memory_utilization = (memory_usage / data["memory_stats"]["limit"]) * 100
+        nw_utilization = (nw_usage / (1024 * 1024)) * 100  # Convert to Mbps
+
+        stats = {"id": containerid, "cpu_usage": cpu_usage, "memory_usage": memory_usage, "nw_usage": nw_usage, "cpu_per": cpu_utilization, "mem_per": memory_utilization, "nw": nw_utilization}
+        #send the stat as it is if implementing graphQL in other layer
+        #result.append(data)
+        #UsageDelta = data['cpu_stats']['cpu_usage']['total_usage'] - data['precpu_stats']['cpu_usage']['total_usage']
+
         result.append(stats)
     return result
 
-'''
+#''' for unit testing
 result_out = dockerstatinfo()
 print(result_out)
-'''
+#'''
