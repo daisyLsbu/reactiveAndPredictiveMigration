@@ -30,7 +30,7 @@ async def storeData(interval:int):
 
     pp = PrettyPrinter(indent=2)
     client_endpoints = read_hosts()  # gets list of url to clients
-    bucket="telemetrydata"
+    bucket="telemetryData"
 
     async with aiohttp.ClientSession() as session:
         while True:
@@ -41,7 +41,7 @@ async def storeData(interval:int):
             data = await asyncio.gather(*fetch_coroutines)
             pp.pprint(data)
 
-            influxdbsuite.writeToDB(data, bucket)
+            influxdbsuite.writeToDBCombinedTest(data, bucket)
             await asyncio.sleep(interval)
 
 

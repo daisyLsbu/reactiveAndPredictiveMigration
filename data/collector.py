@@ -28,6 +28,8 @@ def connectToDB():
 def collectDataWithAPI(ip, port):
     api_url = "http://" + ip + ':' + str(port) + "/DeviceData"
     response = requests.get(api_url)
+    #response = requests.post('https://api.example.com/submit', data=data)
+
     print(response.status_code )
     if(response.status_code == 200):
         deviceData = response.json()
