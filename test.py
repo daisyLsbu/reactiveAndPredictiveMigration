@@ -101,8 +101,7 @@ def selectDestToMigrate(demand, srcIP):
     return destIP
 '''
 
-def copyToDestination(destIP):
-    pass
+
 
 
 def migrateVictimCntr():
@@ -128,13 +127,17 @@ def createSourceImage(srcIP, cntrId):
 
 def restoreInDestination(destIP):
     connectRemote.sshrestore(destIP)
+
+def copyToDestination(destIP):
+    pass
             
 if __name__ == '__main__':
     cntrId = 'a26f6bb7336b'
     srcIP = "192.168.122.210"
     destIP = "192.168.122.210"
     # createSourceImage(srcIP, cntrId)
-    restoreInDestination(destIP)
+    #restoreInDestination(destIP)
+    copyToDestination(destIP)
 
 
 
