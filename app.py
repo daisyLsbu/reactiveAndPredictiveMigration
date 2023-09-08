@@ -29,14 +29,6 @@ def get_combineddata():
     result['containers'] = dockerStat.dockerstatinfo()
     return result
 
-@app.get("/rtt")
-def get_rttdata():
-   hosts = [
-    '8.8.8.8'
-      ]
-   result = rtt.ping_host(hosts)
-   return result
-
 @app.route('/greet', methods=['GET'])
 def greet():
     name = request.args.get('name')  # Get the 'name' parameter from the query string
@@ -44,8 +36,6 @@ def greet():
         return jsonify({'message': f'Hello, {name}!'})
     else:
         return jsonify({'error': 'Name parameter is missing'}), 400
-
-
 
 @app.route('/process-json', methods=['POST'])
 def process_json():

@@ -8,13 +8,16 @@ resourceData = {}
 class cpuData:
         
     def getCPUData(self):
-        cpu_utilization  = psutil.cpu_percent(interval=2)
-        cpu_count = psutil.cpu_count()
+        cpu_percent  = psutil.cpu_percent(interval=2)
+        used_cpu_capacity = cpu_percent
+        free_cpu_capacity = 100 - used_cpu_capacity
+        #cpu_count = psutil.cpu_count()
         #cpu_freq_max = psutil.cpu_freq().max
         #cpu_freq_cur = psutil.cpu_freq().current
         global resourceData
-        resourceData['cpu_utilization'] = cpu_utilization
-        resourceData['cpu_count'] = cpu_count
+        resourceData['cpu_percent'] = cpu_percent
+        resourceData['cpu_used'] = used_cpu_capacity
+        resourceData['cpu_free'] = free_cpu_capacity
         #resourceData['cpu_freq_max'] = cpu_freq_max
         #resourceData['cpu_freq_cur'] = cpu_freq_cur
 
@@ -35,23 +38,20 @@ class storageData:
     def getStorageData(self):
         storage_percent = psutil.disk_usage('/').percent
         storage_free = psutil.disk_usage('/').free
+        storage_used = psutil.disk_usage('/').used
         global resourceData
         resourceData['storage_percent'] = storage_percent
         resourceData['storage_free'] = storage_free
+        resourceData['storage_used'] = storage_used
 
     
 class networkData:
 
     def getNetworkData(self):
         network_drop = psutil.net_io_counters().dropout
-        nic = psutil.net_if_addrs()
-        addrs = nic['lo0']
-        for addr in addrs:
-            if addr.family._name_.__eq__('AF_INET') != 0:
-                nw_ip = getattr(addr, "address")
         global resourceData
         resourceData['network_drop'] = network_drop
-        resourceData['nw_ip'] = nw_ip
+        resourceData['nw_ip'] = "127.0.0.1"
 
         '''''
 count = 0
@@ -62,8 +62,7 @@ for name, stats in psutil.net_connections(kind='inet4').items():
     '''
         
  
-def get_local_ip_time():
- 
+def get_local_ip_time(): 
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
         # doesn't even have to be reachable
@@ -74,7 +73,6 @@ def get_local_ip_time():
     finally:
         s.close()
     resourceData['host'] = IP
-    resourceData['time'] = datetime.datetime.now().ctime()
  
 def startThreads():
     cpu = cpuData()
