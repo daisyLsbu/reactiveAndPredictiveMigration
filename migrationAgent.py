@@ -56,11 +56,16 @@ def readFromDB(client):
         else:
            dbdata[record['host']] = {record['_field'] : record['_value']} 
            
+def getScalarvalue(cpu, st, mem):
+    scalar = cpu + st + mem
+    print(scalar)
+    return scalar
+   
 def getVictimHost():  
   #convert to scalar value
   hostlist = dest_set.copy()
   for host in hostlist:
-    cumulativeValue = dbdata[host]['cpu_utilization'] + dbdata[host]['storage_free'] + dbdata[host]['storage_free']  #create better function
+    cumulativeValue = getScalarvalue(dbdata[host]['cpu_utilization'], dbdata[host]['storage_free'], dbdata[host]['storage_free']) 
 
     #compare with thresold
     if cumulativeValue > thresold:
@@ -129,8 +134,8 @@ def selectBestRTTValue(list, srcIP):
     return dest_IP
 
 
-def copyToDestination(destIP):
-    pass
+def copyToDestination(srcIP, destIP):
+    connectRemote.sshcopy(srcIP, destIP, 22, 'ubuntu', 'ubuntu')
 
 def createSourceImage(srcIP, cntrId):
     print(f'Creating Backup from source: {srcIP} and container: {cntrId}')
@@ -140,6 +145,12 @@ def restoreInDestination(destIP):
     print(f'Restoring Backup in Destination: {destIP}')
     connectRemote.sshrestore(destIP)
 
+    """_summary_
+    loops through the container list marked for migration
+    for each container, gets the resource required and available destinations for migration
+    select destination based on RTT values
+    trigger migration
+    """
 def migrateVictimCntr():
     cntrId = ''
     srcIP = ''
@@ -154,14 +165,14 @@ def migrateVictimCntr():
             if(demand['cpu'] > avail['cpu']):
                 IPlist.append(key)
         destIP = selectBestRTTValue(IPlist, srcIP)
-    print("reached")
+        print("migrating container from sorce to destination")
     #move in for loop
-    cntrId = 'a727f282067a'
-    srcIP = "192.168.122.210"
-    destIP = "192.168.122.210"
-    createSourceImage(srcIP, cntrId)
-    #copyToDestination(destIP)
-    restoreInDestination(destIP)
+    #cntrId = 'a727f282067a'
+    #srcIP = "192.168.122.210"
+    #destIP = "192.168.122.210"
+        createSourceImage(srcIP, cntrId)
+        copyToDestination(srcIP, destIP)
+        restoreInDestination(destIP)
 
 def startmonitoring():
   client = connectToDB()
@@ -178,10 +189,10 @@ def startmonitoring():
     #if victimlist is not empty - search victim container and destination host - > trigger migration
     if victim_set:
       #call combined API to get real data instead of test data
-      deviceData = asyncio.run(getCurrentData()) #change read host to  call combine data
+      deviceData = asyncio.run(getCurrentData()) 
       print(deviceData)
       #just for testing
-      dest_set.add('192.168.122.210') 
+      #dest_set.add('192.168.122.210') 
       #updates details
       updateResourceDetails(deviceData)
       getRTTforVictim()

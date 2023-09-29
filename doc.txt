@@ -1,3 +1,7 @@
+docker images
+docker image tag linuxubuntu-stress daisylsbu/linuxubuntu-stress:latest
+docker image push daisylsbu/linuxubuntu-stress:latest
+
 # day3
 process to start:
 open gns3
