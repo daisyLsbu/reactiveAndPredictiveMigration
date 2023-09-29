@@ -30,7 +30,7 @@ async def storeData(interval:int):
 
     pp = PrettyPrinter(indent=2)
     client_endpoints = read_hosts()  # gets list of url to clients
-    bucket="telemetryData"
+    bucket="telemetrydata"
 
     async with aiohttp.ClientSession() as session:
         while True:
