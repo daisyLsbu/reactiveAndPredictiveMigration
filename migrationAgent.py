@@ -27,7 +27,7 @@ dest_resource = {}
 cntr_resource = {}
 
 dbdata= {}
-thresold = 20
+thresold = 150
 
 def connectToDB():
   token = 'UnZq8-3qAHW4bk5BNjZgPJLBeeNkOXWatintbu4RAZe_96fdRbPHofP_sE6JWNEPrTnGyFUg26ofUifZQx19DA=='
@@ -43,8 +43,8 @@ def readFromDB(client):
   query = """
   from(bucket: "telemetrydata")
 	|> range(start: -1d)
-  |> filter(fn: (r) => r["_measurement"] == "test7")
-  |> filter(fn: (r) => r["_field"] == "cpu_utilization" or r["_field"] == "storage_free" or r["_field"] == "vm_free")
+  |> filter(fn: (r) => r["_measurement"] == "Device")
+  |> filter(fn: (r) => r["_field"] == "cpu_percent" or r["_field"] == "vm_percent" or r["_field"] == "storage_percent")
   """
 
   tables = query_api.query(query, org="LSBU")
@@ -65,18 +65,19 @@ def getVictimHost():
   #convert to scalar value
   hostlist = dest_set.copy()
   for host in hostlist:
-    cumulativeValue = getScalarvalue(dbdata[host]['cpu_utilization'], dbdata[host]['storage_free'], dbdata[host]['storage_free']) 
+    cumulativeValue = getScalarvalue(dbdata[host]['cpu_percent'], dbdata[host]['storage_percent'], dbdata[host]['vm_percent']) 
 
     #compare with thresold
     if cumulativeValue > thresold:
       #if above thresold - > #delete from dest_set, add into victim list 
+      print('yes')
       victim_set.add(host)  
       #remove victim from host set
       dest_set.discard(host)
 
 #update the dest_resource with the available resource details
-def updateDestResource(host, cpu_utilization):
-    dest_resource[host] = {'cpu':cpu_utilization} 
+def updateDestResource(host, vm_free):
+    dest_resource[host] = {'cpu':vm_free} 
 
 #update the cntr_resource with the available resource details
 def updateVictimCntrResource(host, container, cpu, nw, vm):
@@ -85,9 +86,9 @@ def updateVictimCntrResource(host, container, cpu, nw, vm):
 #checks if a container can be flagged as victim and updates it's resource requirement
 def checkCntrResource(cntr, host):
      for id in cntr:
-            cpu = id["cpu_stats"]["cpu_usage"]["total_usage"]
-            nw = id['networks']['eth0']['rx_errors']
-            vm = id["memory_stats"]["usage"]
+            cpu = id["cpu_usage"]
+            nw = id['nw_usage']
+            vm = id["memory_usage"]
             container = id['id']
             if cpu+nw+vm > 2000:
                 updateVictimCntrResource(host, container, cpu, nw, vm)
@@ -96,7 +97,7 @@ def checkCntrResource(cntr, host):
 def updateResourceDetails(deviceData3):
     for k in deviceData3:
         if k['host'] in dest_set:
-            updateDestResource(k['host'], k['cpu_utilization'])
+            updateDestResource(k['host'], k['vm_free'])
             
         elif k['host'] in victim_set:
          if 'containers' in k:
@@ -204,7 +205,7 @@ def startmonitoring():
 
       migrateVictimCntr()
 
-'''
+
 if __name__ == '__main__':
   startmonitoring()
 '''      
@@ -220,14 +221,14 @@ if __name__ == '__main__':
     print("Time taken for copying --- %s seconds ---" % (time.time() - copy_time))
     print("***********starting transfer file******************")
     #transfer_time = time.time()
-    copyToDestination(destIP)
+    copyToDestination(srcIP, destIP)
     print("Time taken for transfer --- %s seconds ---" % (time.time() - start_time))
     print("***********starting restore file******************")
     resore_time = time.time()
     #restoreInDestination(srcIP)
     print("Time taken for resoring --- %s seconds ---" % (time.time() - resore_time))
     print("total time for migration --- %s seconds ---" % (time.time() - start_time))
-
+'''
 
 
 
