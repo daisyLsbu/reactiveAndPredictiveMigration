@@ -1,3 +1,8 @@
+'''
+This application reads the hosts list from host.csv file
+countinously fetches all the data from respective hosts
+and stores it in Timeseries influx DB
+'''
 import aiohttp
 import asyncio
 import pandas as pd

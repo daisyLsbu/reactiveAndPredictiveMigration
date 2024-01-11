@@ -1,11 +1,12 @@
+#create a basic website using HTML, it can be used to test the data from hosts before connecting to DB
+# step1: install live server and add the html file to the live server, use browser at local host to view
+# step2: open html with live server
 #pythonworking;, reading host lists;, fetch, async, display; display as tabular format; updates the browser automatically
-# install live server and add the html file to the live server, use browser at local host to view
-#open html with live server
+
 import pandas as pd
 import aiohttp
 import asyncio
 from pprint import PrettyPrinter
-from tabulate import tabulate
 
 template_header = """ <!DOCTYPE html>
                       <html lang="en">
@@ -55,8 +56,6 @@ async def displayData(interval:int):
 
             # fetch data
             data = await asyncio.gather(*fetch_coroutines)
-            #pp.pprint(data)
-            #tab_text = tabulate(data,headers='firstrow',tablefmt='grid')   
             tab_text=""
             for entry in data:
                 tab_text += "<hr>"
@@ -65,7 +64,6 @@ async def displayData(interval:int):
                 html_txt=tabulate(entry,headers='keys',tablefmt='html')
                 tab_text+=html_txt 
                 tab_text+='<hr>'
-            #pp.pprint(tab_text)
 
             with open('test.html','w') as fp:
                 fp.write(template_header+tab_text+template_trailer)
@@ -75,10 +73,5 @@ async def displayData(interval:int):
 
 
 if __name__ == '__main__':
-
-    print("Hello")
-
     hosts = read_hosts()
-    print(hosts)
-
     asyncio.run(displayData(interval=1))
