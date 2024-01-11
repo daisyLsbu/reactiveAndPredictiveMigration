@@ -1,3 +1,4 @@
+# This file is used after the setup and for subsequent builds
 python3 -m venv venv
 source venv/bin/activate
 conda deactivate

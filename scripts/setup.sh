@@ -1,3 +1,5 @@
+# This file is used in the new system to setup the git and download the telemetry project. uncomment the code below for first time installation.
+
 #sudo apt update
 #sudo apt install git
 #git --version
