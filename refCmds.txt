@@ -44,4 +44,7 @@ indent on mac : cmd + [ , to remove cmd + ]
 ###### docker commands #######
 
 docker API commands:
+client = docker.from_env()
 client.containers.run('alpine', 'echo hello world')
+for containers in client.containers.list():
+    pp.pprint(containers.stats(decode=None, stream = False))
