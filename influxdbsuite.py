@@ -54,114 +54,6 @@ def writeToDB(deviceData, bucket):
         )
       write_api.write(bucket=bucket, org="LSBU", record=point)
 
-
-
-def readFromDB(bucket):
-  client = connectToDB()
-  res = {}
-  # To create a empty set you have to use the built in method:
-  victim_set = set()
-  host_set = set()
-  #querying data from db
-  query_api = client.query_api()  
-  query = """
-    from(bucket: "telemetrydata")
-		|> range(start: -300m)
-	  |> filter(fn: (r) => r["_measurement"] == "test3")
-	  |> filter(fn: (r) => r["_field"] == "cpu_count" or r["_field"] == "cpu_utilization" or r["_field"] == "network_drop")
-	  |> timedMovingAverage(every: 5m, period: 10m)
-    """
-
-
-  tables = query_api.query(query, org="LSBU")
-  results = []
-  for table in tables:
-      for record in table.records:
-        results.append((record.get_value(), record.get_field(), record.values.get('host')))
-        print(record)
-        res[record['_field']] = record['_value']
-        res['host'] = record['host']
-        #convert to scalar value
-        #compare with thresold
-        #if above thresold - > #delete from host list, add into victim list 
-        #host_set.remove(res['host'])
-        #victim_set.add(res['host'])
-
-  #print(res)
-  print(results)
-  
-  #if victimlist is not empty - search destination host - > trigger migration
-  if not victim_set:
-     pass
-    
-def writeToDBAll(deviceData2, bucket):
-    client = connectToDB_mac()
-    write_api = client.write_api(write_options=SYNCHRONOUS)
-
-    for k in deviceData2:
-      point1 = (
-        Point("test7")
-          .tag("host", k['host'])    # added 
-          #.time(k['time'], WritePrecision.NS)
-          .field("host", k['host'])
-          .field("cpu_count", k['cpu_count'])
-          .field("cpu_utilization", k['cpu_utilization'])
-          #.field("network_drop", k['network_drop'])
-          #.field("nw_ip", k['nw_ip'])
-          .field("storage_free", k['storage_free'])
-          .field("storage_percent", k['storage_percent'])
-          .field("vm_free", k['vm_free'])
-          .field("vm_percent", k['vm_percent'])
-          .field("vm_used", k['vm_used'])
-        )
-      if 'ctr' in k:
-        for entry in k['ctr']:
-          point2 = (
-            Point("test8")
-            .tag("host", k['host'])    # added 
-            .tag("container", entry['id'])    # added 
-            .field("cpu_count", entry['ctr_cpu'])
-            .field("storage_free", entry['ctr_str'])
-            .field("vm_free", entry['ctr_vm'])
-          )
-          write_api.write(bucket=bucket, org="LSBU", record=point2)
-
-      write_api.write(bucket=bucket, org="LSBU", record=point1)
-
-def writeToDBCombined(deviceData3, bucket):
-    client = connectToDB_mac()
-    write_api = client.write_api(write_options=SYNCHRONOUS)
-
-    for k in deviceData3:
-      point1 = (
-        Point("test7")
-          .tag("host", k['host'])    # added 
-          #.time(k['time'], WritePrecision.NS)
-          .field("host", k['host'])
-          .field("cpu_count", k['cpu_count'])
-          .field("cpu_utilization", k['cpu_utilization'])
-          #.field("network_drop", k['network_drop'])
-          #.field("nw_ip", k['nw_ip'])
-          .field("storage_free", k['storage_free'])
-          .field("storage_percent", k['storage_percent'])
-          .field("vm_free", k['vm_free'])
-          .field("vm_percent", k['vm_percent'])
-          .field("vm_used", k['vm_used'])
-        )
-      if 'containers' in k:
-        for id in k['containers']:
-          point2 = (
-            Point("test8")
-            .tag("host", k['host'])    # added 
-            .tag("container", id['id'])    # added 
-            .field("cpu", id["cpu_stats"]["cpu_usage"]["total_usage"])
-            .field("nw", id['networks']['eth0']['rx_errors'])
-            .field("vm", id["memory_stats"]["usage"])
-          )
-          write_api.write(bucket=bucket, org="LSBU", record=point2)
-
-      write_api.write(bucket=bucket, org="LSBU", record=point1)
-
 def writeToDBCombinedTest(deviceData, bucket):
     client = connectToDB()
     write_api = client.write_api(write_options=SYNCHRONOUS)
@@ -201,76 +93,6 @@ def writeToDBCombinedTest(deviceData, bucket):
 
 if __name__ == '__main__':
 
-  deviceData = [ 
-    { 'cpu_count': 8,
-    'cpu_utilization': 5.3,
-    'host': '10.35.109.155',
-    'network_drop': 3,
-    'nw_ip': '127.0.0.1',
-    'storage_free': 35627315200,
-    'storage_percent': 19.9,
-    'time': 'Wed Jul 12 20:22:53 2023',
-    'vm_free': 40894464,
-    'vm_percent': 83.9,
-    'vm_used': 3310534656},
-
-  { 'cpu_count': 8,
-    'cpu_utilization': 5.3,
-    'host': '10.35.109.155',
-    'network_drop': 0,
-    'nw_ip': '127.0.0.1',
-    'storage_free': 35627315200,
-    'storage_percent': 19.9,
-    'time': 'Wed Jul 12 20:22:53 2023',
-    'vm_free': 40894464,
-    'vm_percent': 83.9,
-    'vm_used': 3310534656}]
-        
-  deviceData2 = [ 
-    { 'cpu_count': 8,
-    'cpu_utilization': 5.3,
-    'host': '10.35.109.165',
-    'network_drop': 3,
-    'nw_ip': '127.0.0.1',
-    'storage_free': 35627315200,
-    'storage_percent': 19.9,
-    'time': 'Wed Jul 12 20:22:53 2023',
-    'vm_free': 40894464,
-    'vm_percent': 83.9,
-    'vm_used': 3310534656,
-    'ctr':[{'id': 49,
-    'ctr_cpu': 83.9,
-    'ctr_str': 83.9,
-    'ctr_vm': 3310534656}]},
-
-
-  { 'cpu_count': 8,
-    'cpu_utilization': 5.3,
-    'host': '10.35.109.155',
-    'network_drop': 0,
-    'nw_ip': '127.0.0.1',
-    'storage_free': 35627315200,
-    'storage_percent': 19.9,
-    'time': 'Wed Jul 12 20:22:53 2023',
-    'vm_free': 40894464,
-    'vm_percent': 83.9,
-    'vm_used': 3310534656,
-    'ctr':[{'id': 404,
-    'ctr_cpu': 83.9,
-    'ctr_str': 83.9,
-    'ctr_vm': 3310534656}, 
-    {'id': 41,
-    'ctr_cpu': 83.9,
-    'ctr_str': 83.9,
-    'ctr_vm': 3310534656}, 
-    {'id': 42,
-    'ctr_cpu': 83.9,
-    'ctr_str': 83.9,
-    'ctr_vm': 3310534656}]}]
-  
-  deviceData3 = [{"containers":[{"blkio_stats":{"io_merged_recursive":'null',"io_queue_recursive":'null',"io_service_bytes_recursive":[{"major":254,"minor":0,"op":"read","value":4096},{"major":254,"minor":0,"op":"write","value":0}],"io_service_time_recursive":'null',"io_serviced_recursive":'null',"io_time_recursive":'null',"io_wait_time_recursive":'null',"sectors_recursive":'null'},"cpu_stats":{"cpu_usage":{"total_usage":167978000,"usage_in_kernelmode":114098000,"usage_in_usermode":53879000},"online_cpus":4,"system_cpu_usage":195777240000000,"throttling_data":{"periods":0,"throttled_periods":0,"throttled_time":0}},"id":"20a80e41e8c2ef2063f1f9e91667b6261650e79cf86e0159b078c994e7fc26a5","memory_stats":{"limit":4124508160,"stats":{"active_anon":0,"active_file":4096,"anon":507904,"anon_thp":0,"file":4096,"file_dirty":0,"file_mapped":0,"file_writeback":0,"inactive_anon":507904,"inactive_file":0,"kernel_stack":16384,"pgactivate":0,"pgdeactivate":0,"pgfault":5301,"pglazyfree":0,"pglazyfreed":0,"pgmajfault":0,"pgrefill":0,"pgscan":0,"pgsteal":0,"shmem":0,"slab":258712,"slab_reclaimable":167176,"slab_unreclaimable":91536,"sock":0,"thp_collapse_alloc":0,"thp_fault_alloc":0,"unevictable":0,"workingset_activate":0,"workingset_nodereclaim":0,"workingset_refault":0},"usage":856064},"name":"/agitated_goodall","networks":{"eth0":{"rx_bytes":2276,"rx_dropped":0,"rx_errors":0,"rx_packets":30,"tx_bytes":0,"tx_dropped":0,"tx_errors":0,"tx_packets":0}},"num_procs":0,"pids_stats":{"current":1,"limit":18446744073709551615},"precpu_stats":{"cpu_usage":{"total_usage":167978000,"usage_in_kernelmode":114098000,"usage_in_usermode":53879000},"online_cpus":4,"system_cpu_usage":195773200000000,"throttling_data":{"periods":0,"throttled_periods":0,"throttled_time":0}},"preread":"2023-08-05T08:37:19.267659468Z","read":"2023-08-05T08:37:20.278237885Z","storage_stats":{}}],"cpu_count":8,"cpu_utilization":15.4,"host":"10.35.84.126","network_drop":0,"nw_ip":"127.0.0.1","storage_free":17834856448,"storage_percent":33.1,"time":"Sat Aug  5 09:37:17 2023","vm_free":82952192,"vm_percent":85.0,"vm_used":3326935040}
-]
-
   bucket_mac="telemetrydata"
 
   deviceDataTest = [{
@@ -298,11 +120,6 @@ if __name__ == '__main__':
   "vm_percent": 82.2,
   "vm_used": 3770859520
 }]
-
   writeToDBCombinedTest(deviceDataTest, bucket_mac)
-  #writeToDBCombined(deviceData3, bucket_mac)
-  #writeToDBAll(deviceData2, bucket_mac)
-  #writeToDB(deviceData, bucket_mac)
-  #readFromDB(bucket_mac)
 
 
