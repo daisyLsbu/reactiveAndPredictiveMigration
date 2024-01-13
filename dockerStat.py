@@ -1,6 +1,13 @@
 import docker
 
 def dockerstatinfo():
+    """
+    Returns a dictionary with Docker container statistics.
+    This function returns the number of running and stopped containers, as well as information about CPU
+    usage (user/system), memory usage, network I/O, block I/O,
+    and filesystem I/O for each container.
+    """
+
     client = docker.from_env()
     result = []
 
@@ -27,9 +34,3 @@ def dockerstatinfo():
 
         result.append(stats)
     return result
-
-'''
-for unit testing
-result_out = dockerstatinfo()
-print(result_out)
-'''
