@@ -1,19 +1,8 @@
 # installation and testing
 
-Steps to start:
-ping all hosts from monitoring server
-For each host in network : follow TelemetryApplication setup and dockerSetup (if required)
-for monitoring server: do setup of application and influx db and grafana
-
-1. For telemetry project: setup in each host:::
- run setup.sh script
- run build.sh  to get git clone
- Linux machine: 
- sudo apt install python3.10-venv
- pip install -r requirements.txt
- run script run.sh with port number as arg
+For monitoring server: do setup of application and influx db and grafana
  
-2. For Monitor project:
+1. For Monitor application in windows server:
 install git from cmd: winget install --id Git.Git -e --source winget
 clone repo : git clone -b monitor https://github.com/daisyLsbu/MigrationOrchesTelemtry.git
 cd Monitor
@@ -22,10 +11,76 @@ install pip: pip install virtualenv
 setup project: pip install -r requirement.txt
 cd venv/Scripts: ./activate : if doesnot allow, from powershell allow executionPolicy =all
 pip upgrade
-install influx db and setup: to start: 
+
+2. install influx db and setup: to start: 
 cd -Path 'C:\Program Files\InfluxData\influxdb'
  ./influxd
-Test application:
+
+3. Steps to setup and start the nodes in network:
+Install and configure GNS3:
+a) install in windows
+install vmware work station 
+download gns3 vm and gns3 gui
+installation of gns3 vm :: 
+extract gns3 vm
+open vmware 
+file-open-sect path-open-add name = gns3 vm-path = gns3vm in document folder--import
+edit vm::
+setting-mem=8gb-pro=1-core=4-vt-x=yes
+*upgrade 
+installation of gns3 ui: 
+start exe-install-next-agree-select=desktop and ui-path=..-nmap-agree-next-wireshark-
+-putty->email-next-finish
+config ui to connect to vm:
+setup wizard- run on virtual box-select path-*localhost and 3080 port-select name created-processor =4-memory=8192-ok
+nw setting in vmware:
+host only and nat
+security config: 
+from vmware - vm-ok-security-user=gns3-pass=gns3-ok
+installing PC image in gns3:
+download from gns3-marketplace-appliance
+for ubuntu cloud guest: amd64img -initdata nad actual image
+for ubuntu desktop guest:ubuntu desktop guest 
+file-import appliance-select image-install in gns vm-ok
+for both docker image and the ubuntu cloud
+for topology:
+drag and drop 3 ubuntu cloud, 1 switch and NAT, connect all to switch using ethernet
+start the hosts and open console for each one of them.
+ping to check all are reachable and accessible to each other.
+b) steps for installation linux:
+updating and upgrading the system
+sudo apt -y update ; sudo apt -y upgrade
+#clear screen of the terminal
+clear
+#gns3 installation:
+sudo add-apt-repository ppa:gns3/ppa
+sudo dpkg --add-architecture i386
+sudo apt update
+sudo apt install gns3-iou
+sudo apt update 
+sudo apt install gns3-gui gns3-server
+
+#install drivers for internet adapter
+sudo apt install git dkms
+git clone https://github.com/aircrack-ng/rtl8812au.git
+cd rtl8812au
+ls -lrt
+sudo make dkms_install
+sudo dkms status
+
+4. For telemetry Application: setup in each host:::
+ open gns3
+ start each hosts -> login to consoles -> get ips:
+ run setup.sh script
+ run build.sh  to get git clone
+ Linux machine: 
+ sudo apt install python3.10-venv
+ pip install -r requirements.txt
+ run script run.sh with port number as arg
+
+5. Test application:
+ping all hosts from monitoring server
+For each host in network : make sure  TelemetryApplication setup and dockerSetup is done (if required)
 test.html-> open with live server
 update the node.sh file with the ip and ports
 on terminal - run -> python3 collectDisplaytable.py 
@@ -34,4 +89,14 @@ ctrl +c
 try directly from browser ip: port
 from vscode run 
 python3 collectorAsync.py
-check in flux db -- localhost: 8086
+check influx db -- localhost: 8086
+
+6. start the migration project
+  migrationagent.py
+
+7. for using the LSTM capability
+ lstm model present in LSTM file can be trained by historical data 
+ and the same model can be used in migrationAgent to predict the future value to help in the decision making
+
+8. Madm file can also be used to make the desicion 
+ code is present in MADM.py file
