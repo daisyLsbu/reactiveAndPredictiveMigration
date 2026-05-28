@@ -26,7 +26,7 @@
 
 ## What is This Project?
 
-**MigrationOrchesTelemetry** is a distributed system that enables **autonomous, intelligent container migration** across a network of hosts. It combines two complementary migration strategies:
+**reactiveAndPredictiveMigration** is a distributed system that enables **autonomous, intelligent container migration** across a network of hosts. It combines two complementary migration strategies:
 
 - **Reactive Migration** — Triggers container relocation when a host's resource utilisation breaches a predefined threshold (CPU, memory, network).
 - **Predictive Migration** — Uses an LSTM (Long Short-Term Memory) neural network trained on historical telemetry to *forecast* resource exhaustion before it happens, enabling proactive migration decisions.
@@ -39,9 +39,10 @@ The system continuously collects telemetry from all hosts in the network, stores
 
 This codebase was developed to support and validate the findings of the following research paper:
 
-> **[Add your paper title here]**
-> *[Author names] — Published in [Journal/Conference, Year]*
-> DOI / Link: [Add DOI or link here]
+> **Reactive vs Predictive Live Migration in Edge Cloud**
+> *Daisy Rani — Published in ICC 2024 - IEEE International, 2024*
+> DOI: 10.1109/ICC51166.2024.10622687
+> Link: [[Add DOI or link here]](https://ieeexplore.ieee.org/document/10622687) 
 
 The paper proposes a dual-strategy migration framework that outperforms purely reactive approaches by reducing service disruption through early predictive action. The code in this repository implements the full pipeline described in the paper — from raw telemetry collection through to live container migration.
 
@@ -91,10 +92,11 @@ This project was developed incrementally, with each functional component built a
 
 | Component | Standalone Repository | What it explores |
 |---|---|---|
-| Telemetry collection + Docker stats | [`dockerAPI`](https://github.com/daisyLsbu/dockerAPI) | Host footprinting, Docker Stats API, RTT measurement |
+| Telemetry collection | [`TelemetryApplication`](https://github.com/daisyLsbu/TelemetryApplication) | Host footprinting |
+| Docker stats | [`DockerAPI`](https://github.com/daisyLsbu/dockerAPIs) | Docker Stats API, RTT measurement |
 | Time-series monitoring + storage | [`monitoringapplication`](https://github.com/daisyLsbu/monitoringapplication) | Async polling, InfluxDB ingestion, Grafana dashboards |
 | LSTM model for resource forecasting | [`LSTM`](https://github.com/daisyLsbu/LSTM) | Model training, time-series preprocessing, forecasting |
-| Predictive migration logic | [`predictmigration`](https://github.com/daisyLsbu/predictmigration) | Threshold evaluation, destination selection, orchestration |
+| Reactive migration logic | [`Reactive Migration logic`](https://github.com/daisyLsbu/MigrationOrchestrator) | Threshold evaluation, destination selection, orchestration |
 
 These repositories represent the research and development progression described in the paper. The consolidated, deployable version of the full system is what lives in the two branches of this repository.
 
@@ -135,19 +137,17 @@ This branch contains the **data collection layer** of the system. It runs two co
 
 ---
 
-### Branch: `main`
+### Branch: `monitor`
 
 **Deploy on:** the central orchestration node (one instance per network).
 
 ```bash
-git checkout main
+git checkout monitor
 ```
 
 This branch contains the **monitoring, intelligence, and orchestration layer** — three components that work together as a single cohesive system:
 
 **Monitoring Application** — runs continuously, asynchronously polling every host's Telemetry App and writing all metrics into InfluxDB for time-series storage and optional Grafana visualisation.
-
-**LSTM Prediction Model** — trains on the historical resource data in InfluxDB to forecast future CPU and memory utilisation per host over a configurable time window. Predictions feed the orchestrator for proactive migration decisions.
 
 **Migration Orchestrator** — the decision engine. It reads a rolling moving average of resource metrics from InfluxDB, converts them to a comparable scalar, and evaluates two triggers:
 - **Reactive:** current utilisation exceeds the configured threshold → migrate now
@@ -155,7 +155,7 @@ This branch contains the **monitoring, intelligence, and orchestration layer** �
 
 Once a migration is triggered, the orchestrator selects the source container (by Docker resource usage) and the best destination host (by available resources and RTT), then invokes the Docker API Wrapper on the `telemetry` branch to execute the live migration.
 
-> *Standalone development repositories for these components: [`monitoringapplication`](https://github.com/daisyLsbu/monitoringapplication), [`LSTM`](https://github.com/daisyLsbu/LSTM), [`predictmigration`](https://github.com/daisyLsbu/predictmigration)*
+> *Standalone development repositories for these components: Refer above
 
 ---
 
@@ -297,11 +297,11 @@ If you use this code in your research, please cite the original paper:
 
 ```bibtex
 @article{[citation_key],
-  title   = {[Paper Title]},
-  author  = {[Authors]},
-  journal = {[Journal/Conference]},
-  year    = {[Year]},
-  doi     = {[DOI]}
+  title   = {Reactive vs Predictive Live Migration in Edge Cloud},
+  author  = {Daisy Rani, Saptarshi Ghosh, Tasos Dagiuklas},
+  journal = {ICC 2024 - IEEE International Conference on Communications},
+  year    = {2024},
+  doi     = {10.1109/ICC51166.2024.10622687}
 }
 ```
 
