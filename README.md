@@ -12,12 +12,12 @@
 - [How This Work Was Built — Incremental Development](#how-this-work-was-built--incremental-development)
 - [Repository Branches](#repository-branches)
   - [Branch: `telemetry`](#branch-telemetry)
-  - [Branch: `main`](#branch-main)
+  - [Branch: `main`](#branch-monitor)
 - [How to Run the Project](#how-to-run-the-project)
   - [Prerequisites](#prerequisites)
   - [Clone the Repository](#clone-the-repository)
   - [Running the `telemetry` Branch](#running-the-telemetry-branch)
-  - [Running the `main` Branch](#running-the-main-branch)
+  - [Running the `monitor` Branch](#running-the-main-branch)
 - [Component Interaction Flow](#component-interaction-flow)
 - [Technologies Used](#technologies-used)
 - [Citation](#citation)
@@ -42,7 +42,7 @@ This codebase was developed to support and validate the findings of the followin
 > **Reactive vs Predictive Live Migration in Edge Cloud**
 > *Daisy Rani — Published in ICC 2024 - IEEE International, 2024*
 > DOI: 10.1109/ICC51166.2024.10622687
-> Link: [[Add DOI or link here]](https://ieeexplore.ieee.org/document/10622687) 
+> Link: [IEEE paper link](https://ieeexplore.ieee.org/document/10622687) 
 
 The paper proposes a dual-strategy migration framework that outperforms purely reactive approaches by reducing service disruption through early predictive action. The code in this repository implements the full pipeline described in the paper — from raw telemetry collection through to live container migration.
 
@@ -54,15 +54,15 @@ The paper proposes a dual-strategy migration framework that outperforms purely r
 ┌──────────────────────────────────────────────────────────────────┐
 │                          Host Network                            │
 │                                                                  │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐        │
-│  │  Host A  │  │  Host B  │  │  Host C  │  │  Host N  │        │
-│  │Telemetry │  │Telemetry │  │Telemetry │  │Telemetry │        │
-│  │   App    │  │   App    │  │   App    │  │   App    │        │
-│  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘        │
-│       └─────────────┴─────────────┴─────────────┘               │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐          │
+│  │  Host A  │  │  Host B  │  │  Host C  │  │  Host N  │          │
+│  │Telemetry │  │Telemetry │  │Telemetry │  │Telemetry │          │
+│  │   App    │  │   App    │  │   App    │  │   App    │          │
+│  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘          │
+│       └─────────────┴─────────────┴─────────────┘                │
 │  ── branch: telemetry ──────────  │  ──────────────────────────  │
 │                                   │  HTTP polling (aiohttp)      │
-│  ── branch: main ─────────────────┼──────────────────────────── │
+│  ── branch: main ─────────────────┼────────────────────────────  │
 │                        ┌──────────▼──────────┐                   │
 │                        │  Monitoring App     │                   │
 │                        │  (aiohttp + InfluxDB│                   │
@@ -71,10 +71,10 @@ The paper proposes a dual-strategy migration framework that outperforms purely r
 │                                   │                              │
 │               ┌───────────────────┴──────────────┐               │
 │               │                                  │               │
-│  ┌────────────▼────────────┐   ┌─────────────────▼──────────┐   │
-│  │  Reactive Threshold     │   │  LSTM Prediction Model     │   │
-│  │  Check                  │   │                            │   │
-│  └────────────┬────────────┘   └─────────────────┬──────────┘   │
+│  ┌────────────▼────────────┐   ┌─────────────────▼──────────┐    │
+│  │  Reactive Threshold     │   │  LSTM Prediction Model     │    │
+│  │  Check                  │   │                            │    │
+│  └────────────┬────────────┘   └─────────────────┬──────────┘    │
 │               └──────────────┬───────────────────┘               │
 │                    ┌─────────▼──────────┐                        │
 │                    │  Migration         │                        │
@@ -111,7 +111,7 @@ reactiveAndPredictiveMigration/
 │
 ├── branch: telemetry  ──  deployed on every monitored host node
 │
-└── branch: main       ──  deployed on the central orchestration node
+└── branch: monitor      ──  deployed on the central orchestration node
 ```
 
 ---
