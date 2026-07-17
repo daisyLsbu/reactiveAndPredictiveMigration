@@ -115,69 +115,91 @@ reactiveAndPredictiveMigration/
 ```
 
 ---
+Components
 
-### Branch: `telemetry`
+TelemetryApplication
 
-**Deploy on:** every host node you want to monitor and migrate containers from/to.
+Application to get the telemetry information, developed in python.
+psutil library for system resource information for foot-printing application.
+Docker Stats API for the resources related to all the containers.
+RTT data between the application host and the list of other hosts in the network.
 
-```bash
-git checkout telemetry
-```
+Deploy this on: every node in your network.
 
-This branch contains the **data collection layer** of the system. It runs two components together:
 
-**Telemetry Application** — a lightweight HTTP server that continuously collects and exposes resource metrics for this host. It reports:
-- CPU, memory, disk, and network utilisation (via `psutil`)
-- Per-container resource usage (via Docker Stats API)
-- Round-Trip Time (RTT) to all other nodes in the network
+MonitoringApplication
 
-**Docker API Wrapper** — a Python module that abstracts Docker Engine API calls for container inspection and live migration operations. It is used by the orchestrator in the `main` branch to execute migrations remotely.
+The application runs continuously monitoring and storing data related to the hosts in the network.
 
-> *Standalone development repositories for these components: [`dockerAPI`](https://github.com/daisyLsbu/dockerAPI)*
+Collects telemetry data from all the hosts in the network and stores in InfluxDB.
+Developed in python, list of hosts is provided in a CSV file.
+AIOhttp for Asynchronous HTTP Client/Server communication with the hosts.
+Timeseries InfluxDB is used to store the data for all hosts, which can be used to plot and analyse using Grafana.
 
----
 
-### Branch: `monitor`
+MigrationOrchestrator
 
-**Deploy on:** the central orchestration node (one instance per network).
+Orchestrates the migration of containers from the over-utilised host to a resource available host in the network.
+The data stored in time-series InfluxDB is read continuously in a moving average for each of the hosts in the network.
+The resource utilisation is converted to scalar and compared to the preset threshold.
+For the over utilised hosts, its docker data is checked to identify the container/s to be migrated.
+The available resources in the network is checked to identify the destination host/s.
+The transmission time from the source host to destination hosts are checked to select the destination host.
+Docker is used to host the containers; docker APIs are used to aid migration from source to destination host.
 
-```bash
-git checkout monitor
-```
 
-This branch contains the **monitoring, intelligence, and orchestration layer** — three components that work together as a single cohesive system:
+MAMD — Moving Average Migration Decision
 
-**Monitoring Application** — runs continuously, asynchronously polling every host's Telemetry App and writing all metrics into InfluxDB for time-series storage and optional Grafana visualisation.
+Applies a rolling moving average over historical telemetry data before comparing against thresholds.
+Smooths short-term resource spikes to prevent unnecessary migrations caused by transient load bursts.
+Configurable moving average window size to tune sensitivity.
+Feeds the smoothed utilisation value into the reactive threshold comparison in the Migration Orchestrator.
 
-**Migration Orchestrator** — the decision engine. It reads a rolling moving average of resource metrics from InfluxDB, converts them to a comparable scalar, and evaluates two triggers:
-- **Reactive:** current utilisation exceeds the configured threshold → migrate now
-- **Predictive:** LSTM forecast indicates an upcoming breach → migrate before it occurs
 
-Once a migration is triggered, the orchestrator selects the source container (by Docker resource usage) and the best destination host (by available resources and RTT), then invokes the Docker API Wrapper on the `telemetry` branch to execute the live migration.
+Predictive Migration (LSTM)
 
-> *Standalone development repositories for these components: Refer above
+Uses an LSTM neural network trained in LSTMSetup to forecast future CPU and memory utilisation.
+Triggers proactive container migration when predicted utilisation is forecast to exceed a threshold within the forecast horizon — before the threshold is actually breached.
+Reads historical time-series data from InfluxDB for model input.
+The trained model file must be obtained from LSTMSetup before running this component.
 
----
+Key technologies: Python, TensorFlow / Keras, InfluxDB client, Docker API.
 
-## How to Run the Project
 
-### Prerequisites
+Prerequisites
 
-| Requirement | Where needed |
-|---|---|
-| Python 3.8+ | All nodes |
-| Docker Engine (API enabled) | All nodes |
-| InfluxDB | Orchestration node |
-| Grafana *(optional)* | Orchestration node |
+Ensure the following are installed on all relevant nodes:
 
----
+
+Python 3.8+
+Docker Engine (with API access enabled)
+InfluxDB (accessible from the Monitoring Application node)
+Grafana (optional, for dashboards)
+TensorFlow / Keras (required on the orchestration node for predictive migration)
+Trained LSTM model from LSTMSetup (required for predictive migration)
+
+
+
+Installation
+
+Clone the repository on each host you want to monitor (telemetry branch):
+
+git clone https://github.com/daisyLsbu/reactiveAndPredictiveMigration.git
+cd reactiveAndPredictiveMigration
+pip install -r requirements.txt
+
+Clone the repository on the central monitoring/orchestration node (monitor branch):
+
+git clone https://github.com/daisyLsbu/reactiveAndPredictiveMigration.git
+cd reactiveAndPredictiveMigration
+pip install -r requirements.txt
 
 ## Running the Full System
 
 The system runs across two branches. The telemetry branch must be running on every host node before starting the monitor branch on the central orchestration node.
 
 
-# Before You Start
+### Before You Start
 
 Ensure the following are in place across your network:
 
