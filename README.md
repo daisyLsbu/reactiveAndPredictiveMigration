@@ -13,11 +13,15 @@
 - [Repository Branches](#repository-branches)
   - [Branch: `telemetry`](#branch-telemetry)
   - [Branch: `main`](#branch-monitor)
+- [Components](#components)
 - [How to Run the Project](#how-to-run-the-project)
   - [Prerequisites](#prerequisites)
-  - [Clone the Repository](#clone-the-repository)
-  - [Running the `telemetry` Branch](#running-the-telemetry-branch)
-  - [Running the `monitor` Branch](#running-the-main-branch)
+  - [Installation](#installation)
+  - [Before You Start](#before-you-start)
+  - [Step 1 — Telemetry Application](#step-1--configure-and-launch-the-telemetry-application-on-every-host-node)
+  - [Step 2 — Monitoring Application & Orchestrator](#step-2--configure-and-launch-the-monitoring-application-and-migration-orchestrator-on-the-orchestration-node)
+  - [Step 3 — LSTM Model](#step-3--train-and-deploy-the-lstm-model-predictive-migration)
+  - [Step 4 — Verify End to End](#step-4--verify-the-system-is-running-end-to-end)
 - [Component Interaction Flow](#component-interaction-flow)
 - [Technologies Used](#technologies-used)
 - [Citation](#citation)
@@ -42,7 +46,7 @@ This codebase was developed to support and validate the findings of the followin
 > **Reactive vs Predictive Live Migration in Edge Cloud**
 > *Daisy Rani — Published in ICC 2024 - IEEE International, 2024*
 > DOI: 10.1109/ICC51166.2024.10622687
-> Link: [IEEE paper link](https://ieeexplore.ieee.org/document/10622687) 
+> Link: [IEEE paper link](https://ieeexplore.ieee.org/document/10622687)
 
 The paper proposes a dual-strategy migration framework that outperforms purely reactive approaches by reducing service disruption through early predictive action. The code in this repository implements the full pipeline described in the paper — from raw telemetry collection through to live container migration.
 
@@ -111,181 +115,230 @@ reactiveAndPredictiveMigration/
 │
 ├── branch: telemetry  ──  deployed on every monitored host node
 │
-└── branch: monitor      ──  deployed on the central orchestration node
+└── branch: main       ──  deployed on the central orchestration node
 ```
 
 ---
-Components
 
-TelemetryApplication
+## Components
 
-Application to get the telemetry information, developed in python.
-psutil library for system resource information for foot-printing application.
-Docker Stats API for the resources related to all the containers.
-RTT data between the application host and the list of other hosts in the network.
+### TelemetryApplication
 
-Deploy this on: every node in your network.
+Application to get the telemetry information, developed in Python.
 
+- `psutil` library for system resource information for foot-printing application
+- Docker Stats API for the resources related to all the containers
+- RTT data between the application host and the list of other hosts in the network
 
-MonitoringApplication
+> **Deploy this on:** every node in your network.
+
+---
+
+### MonitoringApplication
 
 The application runs continuously monitoring and storing data related to the hosts in the network.
 
-Collects telemetry data from all the hosts in the network and stores in InfluxDB.
-Developed in python, list of hosts is provided in a CSV file.
-AIOhttp for Asynchronous HTTP Client/Server communication with the hosts.
-Timeseries InfluxDB is used to store the data for all hosts, which can be used to plot and analyse using Grafana.
+- Collects telemetry data from all the hosts in the network and stores in InfluxDB
+- Developed in Python; list of hosts is provided in a CSV file
+- AIOhttp for Asynchronous HTTP Client/Server communication with the hosts
+- Timeseries InfluxDB is used to store the data for all hosts, which can be used to plot and analyse using Grafana
 
+---
 
-MigrationOrchestrator
+### MigrationOrchestrator
 
 Orchestrates the migration of containers from the over-utilised host to a resource available host in the network.
-The data stored in time-series InfluxDB is read continuously in a moving average for each of the hosts in the network.
-The resource utilisation is converted to scalar and compared to the preset threshold.
-For the over utilised hosts, its docker data is checked to identify the container/s to be migrated.
-The available resources in the network is checked to identify the destination host/s.
-The transmission time from the source host to destination hosts are checked to select the destination host.
-Docker is used to host the containers; docker APIs are used to aid migration from source to destination host.
 
+- The data stored in time-series InfluxDB is read continuously in a moving average for each of the hosts in the network
+- The resource utilisation is converted to scalar and compared to the preset threshold
+- For the over-utilised hosts, its docker data is checked to identify the container/s to be migrated
+- The available resources in the network is checked to identify the destination host/s
+- The transmission time from the source host to destination hosts are checked to select the destination host
+- Docker is used to host the containers; Docker APIs are used to aid migration from source to destination host
 
-MAMD — Moving Average Migration Decision
+---
 
-Applies a rolling moving average over historical telemetry data before comparing against thresholds.
-Smooths short-term resource spikes to prevent unnecessary migrations caused by transient load bursts.
-Configurable moving average window size to tune sensitivity.
-Feeds the smoothed utilisation value into the reactive threshold comparison in the Migration Orchestrator.
+### MAMD — Moving Average Migration Decision
 
+- Applies a rolling moving average over historical telemetry data before comparing against thresholds
+- Smooths short-term resource spikes to prevent unnecessary migrations caused by transient load bursts
+- Configurable moving average window size to tune sensitivity
+- Feeds the smoothed utilisation value into the reactive threshold comparison in the Migration Orchestrator
 
-Predictive Migration (LSTM)
+---
 
-Uses an LSTM neural network trained in LSTMSetup to forecast future CPU and memory utilisation.
-Triggers proactive container migration when predicted utilisation is forecast to exceed a threshold within the forecast horizon — before the threshold is actually breached.
-Reads historical time-series data from InfluxDB for model input.
-The trained model file must be obtained from LSTMSetup before running this component.
+### Predictive Migration (LSTM)
 
-Key technologies: Python, TensorFlow / Keras, InfluxDB client, Docker API.
+- Uses an LSTM neural network trained in [LSTMSetup](https://github.com/daisyLsbu/LSTMSetup) to forecast future CPU and memory utilisation
+- Triggers proactive container migration when predicted utilisation is forecast to exceed a threshold within the forecast horizon — before the threshold is actually breached
+- Reads historical time-series data from InfluxDB for model input
+- The trained model file must be obtained from [LSTMSetup](https://github.com/daisyLsbu/LSTMSetup) before running this component
 
+**Key technologies:** Python, TensorFlow / Keras, InfluxDB client, Docker API
 
-Prerequisites
+---
+
+## How to Run the Project
+
+### Prerequisites
 
 Ensure the following are installed on all relevant nodes:
 
+- **Python 3.8+**
+- **Docker Engine** (with API access enabled)
+- **InfluxDB** (accessible from the Monitoring Application node)
+- **Grafana** *(optional, for dashboards)*
+- **TensorFlow / Keras** *(required on the orchestration node for predictive migration)*
+- Trained LSTM model from [LSTMSetup](https://github.com/daisyLsbu/LSTMSetup) *(required for predictive migration)*
 
-Python 3.8+
-Docker Engine (with API access enabled)
-InfluxDB (accessible from the Monitoring Application node)
-Grafana (optional, for dashboards)
-TensorFlow / Keras (required on the orchestration node for predictive migration)
-Trained LSTM model from LSTMSetup (required for predictive migration)
+---
 
+### Installation
 
+Clone the repository on **each host** you want to monitor (telemetry branch):
 
-Installation
-
-Clone the repository on each host you want to monitor (telemetry branch):
-
+```bash
 git clone https://github.com/daisyLsbu/reactiveAndPredictiveMigration.git
 cd reactiveAndPredictiveMigration
 pip install -r requirements.txt
+```
 
-Clone the repository on the central monitoring/orchestration node (monitor branch):
+Clone the repository on the **central monitoring/orchestration node** (main branch):
 
+```bash
 git clone https://github.com/daisyLsbu/reactiveAndPredictiveMigration.git
 cd reactiveAndPredictiveMigration
 pip install -r requirements.txt
+```
 
-## Running the Full System
-
-The system runs across two branches. The telemetry branch must be running on every host node before starting the monitor branch on the central orchestration node.
-
+---
 
 ### Before You Start
 
 Ensure the following are in place across your network:
 
+- InfluxDB is installed and running on the orchestration node
+- Grafana is installed on the orchestration node *(optional but recommended)*
+- SSH access is configured from the orchestration node to all host nodes (required for container image transfer during migration)
+- All host nodes are reachable over the network (the orchestration node will poll them via HTTP)
+- Trained LSTM model file is available from [LSTMSetup](https://github.com/daisyLsbu/LSTMSetup) and placed in the predictive migration directory
 
-InfluxDB is installed and running on the orchestration node
-Grafana is installed on the orchestration node (optional but recommended)
-SSH access is configured from the orchestration node to all host nodes (required for container image transfer during migration)
-All host nodes are reachable over the network (the orchestration node will poll them via HTTP)
-Trained LSTM model file is available from LSTMSetup and placed in the predictive migration directory
+---
 
+### Step 1 — Configure and launch the Telemetry Application on every host node
 
-Step 1 — Configure and launch the Telemetry Application on every host node
+*(Branch: `telemetry` — run this on each machine you want to monitor)*
 
-(Branch: telemetry — run this on each machine you want to monitor)
+**1a. Update the host list**
 
-1a. Update the host list
+In the `Telemetry/` directory, ensure the host list file includes the IP addresses of all other nodes in the network. This is used by the RTT measurement component.
 
-In the Telemetry/ directory, ensure the host list file includes the IP addresses of all other nodes in the network. This is used by the RTT measurement component.
+**1b. Run via the launch script**
 
-1b. Run via the launch script
-
+```bash
 git checkout telemetry
 cd Telemetry/scripts
 bash launch.sh
+```
 
-launch.sh runs the following three scripts in order:
+`launch.sh` runs the following three scripts in order:
 
-ScriptWhat it doessetup.shInstalls dependencies (psutil, ping, Docker SDK) and configures the environmentbuild.shPrepares the applicationrun.shStarts the telemetry server with python app.py <port> (default port: 5000)
+| Script | What it does |
+|---|---|
+| `setup.sh` | Installs dependencies (`psutil`, `ping`, Docker SDK) and configures the environment |
+| `build.sh` | Prepares the application |
+| `run.sh` | Starts the telemetry server with `python app.py <port>` (default port: `5000`) |
 
-1c. Verify it is running
+**1c. Verify it is running**
 
 Once started, the Telemetry Application exposes the following HTTP endpoints on each host:
 
-EndpointReturns/devicedetailsHost-level CPU, memory, disk, network metrics/containersPer-container Docker resource metrics/combinedCombined host and container metrics/rttRound-trip time to other hosts (pass host list in request body)
+| Endpoint | Returns |
+|---|---|
+| `/devicedetails` | Host-level CPU, memory, disk, network metrics |
+| `/containers` | Per-container Docker resource metrics |
+| `/combined` | Combined host and container metrics |
+| `/rtt` | Round-trip time to other hosts (pass host list in request body) |
 
-Open http://<host-ip>:5000/devicedetails in a browser to confirm the application is live before proceeding.
+Open `http://<host-ip>:5000/devicedetails` in a browser to confirm the application is live before proceeding.
 
-1d. Setup Docker and containers
+**1d. Setup Docker and containers**
 
-Run dockersetup.sh to set up containers. Repeat the container creation commands to create multiple containers.
+Run `dockersetup.sh` to set up containers. Repeat the container creation commands to create multiple containers.
 
+> Repeat this step on every host node in the network.
 
-Repeat this step on every host node in the network.
+---
 
+### Step 2 — Configure and launch the Monitoring Application and Migration Orchestrator on the orchestration node
 
-Step 2 — Configure and launch the Monitoring Application and Migration Orchestrator on the orchestration node
+*(Branch: `main` — run this once on the central node)*
 
-(Branch: monitor — run this once on the central node)
+**2a. Update the host list**
 
-2a. Update the host list
+Edit `Monitor/data/host.csv` to list every host node in your network:
 
-Edit Monitor/data/host.csv to list every host node in your network:
-
+```csv
 hostname,ip_address
 host-a,192.168.1.10
 host-b,192.168.1.11
 host-c,192.168.1.12
+```
 
-2b. Update InfluxDB credentials
+**2b. Update InfluxDB credentials**
 
-Open Monitor/influxdbsuite.py and set your InfluxDB connection details (host, port, database name, and credentials).
+Open `Monitor/influxdbsuite.py` and set your InfluxDB connection details (host, port, database name, and credentials).
 
-2c. Run via the launch script
+**2c. Run via the launch script**
 
-git checkout monitor
+```bash
+git checkout main
 cd Monitor/scripts
 bash launch.sh
+```
 
-launch.sh runs the following three scripts in order:
+`launch.sh` runs the following three scripts in order:
 
-ScriptWhat it doessetup.shInstalls dependencies (aiohttp, InfluxDB client, Docker SDK) and validates the InfluxDB connectionbuild.shPrepares the monitoring environment and validates the host listrun.shStarts the Monitoring Application (begins polling all hosts and writing to InfluxDB), then starts the Migration Orchestrator (migrationAgent.py) which continuously evaluates resource utilisation and triggers migration when thresholds are breached
+| Script | What it does |
+|---|---|
+| `setup.sh` | Installs dependencies (`aiohttp`, InfluxDB client, Docker SDK) and validates the InfluxDB connection |
+| `build.sh` | Prepares the monitoring environment and validates the host list |
+| `run.sh` | Starts the Monitoring Application (begins polling all hosts and writing to InfluxDB), then starts the Migration Orchestrator (`migrationAgent.py`) which continuously evaluates resource utilisation and triggers migration when thresholds are breached |
 
-Step 3 — Train and deploy the LSTM model (predictive migration)
+---
 
-Follow the full setup and training steps in LSTMSetup to generate the trained model file. Once trained, place the model file in the predictive migration directory as instructed in that repository, then start the predictive orchestrator:
+### Step 3 — Train and deploy the LSTM model (predictive migration)
 
+Follow the full setup and training steps in [LSTMSetup](https://github.com/daisyLsbu/LSTMSetup) to generate the trained model file. Once trained, place the model file in the predictive migration directory as instructed in that repository, then start the predictive orchestrator:
+
+```bash
 cd predictmigration
 python orchestrator.py
+```
 
-Step 4 — Verify the system is running end to end
+---
+
+### Step 4 — Verify the system is running end to end
 
 Once all components are running:
 
-InfluxDB should be receiving time-series data for all hosts. Query your InfluxDB instance or open Grafana to confirm data is flowing.
-Orchestration logs from migrationAgent.py will show threshold evaluations and any migration decisions being made.
-When a migration is triggered, connectRemote.py handles the SSH-based transfer of the container image from the source host to the destination host, followed by container restore on the destination.
+- **InfluxDB** should be receiving time-series data for all hosts. Query your InfluxDB instance or open Grafana to confirm data is flowing.
+- **Orchestration logs** from `migrationAgent.py` will show threshold evaluations and any migration decisions being made.
+- When a migration is triggered, `connectRemote.py` handles the SSH-based transfer of the container image from the source host to the destination host, followed by container restore on the destination.
+
+### Startup Order Summary
+
+```
+1. [ All host nodes ]     git checkout telemetry  →  bash Telemetry/scripts/launch.sh
+2. [ Orchestration node ] git checkout main        →  bash Monitor/scripts/launch.sh
+3. [ Orchestration node ] cd predictmigration      →  python orchestrator.py
+```
+
+> **⚠️ Important:** If the Monitoring Application starts before the Telemetry Applications are running, it will fail to poll the hosts. Always start Step 1 first.
+
+Check the individual repository for each section and the troubleshoot section for each one of them in case you cannot make it work.
+
+---
 
 ## Component Interaction Flow
 
