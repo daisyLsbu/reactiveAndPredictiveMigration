@@ -12,7 +12,7 @@
 - [How This Work Was Built — Incremental Development](#how-this-work-was-built--incremental-development)
 - [Repository Branches](#repository-branches)
   - [Branch: `telemetry`](#branch-telemetry)
-  - [Branch: `main`](#branch-monitor)
+  - [Branch: `monitor`](#branch-monitor)
 - [Components](#components)
 - [How to Run the Project](#how-to-run-the-project)
   - [Prerequisites](#prerequisites)
