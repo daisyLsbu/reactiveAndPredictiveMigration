@@ -96,11 +96,10 @@ This project was developed incrementally, with each functional component built a
 
 | Component | Standalone Repository | What it explores |
 |---|---|---|
-| Telemetry collection | [`TelemetryApplication`](https://github.com/daisyLsbu/TelemetryApplication) | Host footprinting |
-| Docker stats | [`DockerAPI`](https://github.com/daisyLsbu/dockerAPIs) | Docker Stats API, RTT measurement |
-| Time-series monitoring + storage | [`monitoringapplication`](https://github.com/daisyLsbu/monitoringapplication) | Async polling, InfluxDB ingestion, Grafana dashboards |
-| LSTM model for resource forecasting | [`LSTM`](https://github.com/daisyLsbu/LSTM) | Model training, time-series preprocessing, forecasting |
-| Reactive migration logic | [`Reactive Migration logic`](https://github.com/daisyLsbu/MigrationOrchestrator) | Threshold evaluation, destination selection, orchestration |
+| Telemetry collection | [`TelemetryApplication`](https://github.com/daisyLsbu/TelemetryApplication) | Host footprinting via `psutil`, Docker Stats API, RTT measurement |
+| Docker setup & container migration | [`ContainerCreationMigration`](https://github.com/daisyLsbu/ContainerCreationMigration) | Docker installation, custom image creation, container backup, migrate and restore scripts |
+| Time-series monitoring + storage | [`MonitoringApplication`](https://github.com/daisyLsbu/MonitoringApplication) | Async polling, InfluxDB ingestion, Grafana dashboards |
+| Reactive migration logic | [`MigrationOrchestrator`](https://github.com/daisyLsbu/MigrationOrchestrator) | Threshold evaluation, destination selection, orchestration |
 
 These repositories represent the research and development progression described in the paper. The consolidated, deployable version of the full system is what lives in the two branches of this repository.
 
